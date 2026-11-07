@@ -1,6 +1,6 @@
 /* Streamline chart desk. Flat surfaces, explicit controls, one spatial hierarchy. */
 :root {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Helvetica Neue", Arial, sans-serif;
   font-synthesis: none;
   color: #182f3b;
   background: #d8ecf7;
@@ -218,9 +218,9 @@ button:hover:not(:disabled) {
   position: relative;
 }
 .panel-heading h1 {
-  font-size: 38px;
+  font-size: 34px;
   font-weight: 700;
-  letter-spacing: -1.5px;
+  letter-spacing: -1px;
   line-height: 1.1;
 }
 .panel-heading p {
@@ -375,7 +375,7 @@ button:hover:not(:disabled) {
 }
 .saved-routes label {
   display: block;
-  font-size: 12px;
+  font-size: 14px;
   margin-bottom: 8px;
   font-weight: 700;
 }
@@ -394,7 +394,7 @@ button:hover:not(:disabled) {
   border-block: 1px solid var(--line);
   display: grid;
   gap: 15px;
-  font-size: 12px;
+  font-size: 14px;
 }
 .layer-controls > div {
   display: flex;
@@ -443,12 +443,12 @@ button:hover:not(:disabled) {
   display: grid;
   gap: 6px;
   margin-top: 22px;
-  font-size: 11px;
+  font-size: 14px;
   color: var(--muted);
   line-height: 1.5;
 }
 .source-details strong {
-  font: 12px var(--mono);
+  font: 13px var(--mono);
   color: var(--ink);
 }
 .source-details button {
@@ -487,7 +487,7 @@ button:hover:not(:disabled) {
   left: var(--rail);
   right: 0;
   top: 0;
-  bottom: 190px;
+  bottom: 220px;
   background: #d8ecf7;
 }
 .workspace[data-mode="challenge"][data-result="false"] .flight-map {
@@ -516,7 +516,7 @@ button:hover:not(:disabled) {
   pointer-events: none;
 }
 .chart-title > span {
-  font: 10px var(--mono);
+  font: 12px var(--mono);
   color: var(--muted);
   letter-spacing: 0.7px;
 }
@@ -534,7 +534,7 @@ button:hover:not(:disabled) {
   display: flex;
   gap: 18px;
   flex-wrap: wrap;
-  font-size: 11px;
+  font-size: 14px;
   max-width: 65%;
 }
 .chart-key > span {
@@ -651,11 +651,11 @@ button:hover:not(:disabled) {
   gap: 10px;
 }
 .playback-heading h2 {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
 }
 .playback-heading > span {
-  font-size: 9px;
+  font-size: 11px;
   color: var(--muted);
   max-width: 105px;
   text-align: right;
@@ -684,16 +684,16 @@ button:hover:not(:disabled) {
   margin: 0 auto 0 3px;
 }
 .elapsed strong {
-  font: 13px var(--mono);
+  font: 16px var(--mono);
 }
 .elapsed span {
-  font-size: 9px;
+  font-size: 11px;
   color: var(--muted);
 }
 .playback-controls label {
   display: grid;
   gap: 3px;
-  font-size: 9px;
+  font-size: 11px;
   color: var(--muted);
 }
 .playback-controls select {
@@ -708,7 +708,7 @@ button:hover:not(:disabled) {
   margin: 10px 0 0;
 }
 .playback-panel > p {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   line-height: 1.5;
   margin-top: 6px;
@@ -718,7 +718,7 @@ button:hover:not(:disabled) {
   left: var(--rail);
   right: 0;
   bottom: 0;
-  min-height: 190px;
+  min-height: 220px;
   z-index: 4;
   display: grid;
   grid-template-columns: 160px minmax(320px, 1fr) 180px;
@@ -756,18 +756,18 @@ button:hover:not(:disabled) {
 .metric-grid {
   display: grid;
   gap: 0;
-  font-size: 12px;
+  font-size: 14px;
   font-variant-numeric: tabular-nums;
 }
 .metric-header,
 .metric-row {
   display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr 0.8fr;
+  grid-template-columns: 1.65fr 1fr 1fr 0.8fr;
   gap: 14px;
   align-items: center;
 }
 .metric-header {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
   border-bottom: 1px solid var(--ink);
   padding-bottom: 9px;
@@ -780,10 +780,10 @@ button:hover:not(:disabled) {
   display: flex;
   gap: 8px;
   align-items: center;
-  font-size: 11px;
+  font-size: 14px;
 }
 .metric-row strong {
-  font: 12px var(--mono);
+  font: 16px var(--mono);
 }
 .metric-row.wind_optimized {
   color: var(--alt);
@@ -796,13 +796,13 @@ button:hover:not(:disabled) {
 }
 .comparison-result strong {
   color: var(--alt);
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 500;
   line-height: 1.1;
   letter-spacing: -0.5px;
 }
 .comparison-result span {
-  font-size: 11px;
+  font-size: 14px;
   line-height: 1.5;
   color: var(--muted);
 }
@@ -818,7 +818,7 @@ button:hover:not(:disabled) {
 .model-note,
 .model-warning {
   grid-column: 1/-1;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.5;
   color: var(--muted);
 }
@@ -869,7 +869,7 @@ button:hover:not(:disabled) {
   gap: 10px;
   border-top: 1px solid var(--line);
   padding: 10px 0;
-  font-size: 12px;
+  font-size: 14px;
 }
 .segment-readings strong {
   font: 12px var(--mono);
@@ -909,7 +909,7 @@ button:hover:not(:disabled) {
   gap: 12px;
   padding: 12px 0;
   min-height: 44px;
-  font-size: 12px;
+  font-size: 14px;
   text-align: left;
   color: var(--muted);
   border-bottom: 1px solid var(--line);
@@ -1532,4 +1532,118 @@ button:hover:not(:disabled) {
 }
 .maplibregl-ctrl-attrib-button {
   border-radius: 0 !important;
+}
+
+/* Presentation view enlarges evidence; it does not change the model or scenario. */
+.presentation-toggle {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.presentation-toggle[aria-pressed="true"] {
+  font-weight: 700;
+}
+@media (min-width: 1201px) {
+  [data-present="true"] .comparison-dock {
+    min-height: 260px;
+    grid-template-columns: 150px minmax(0, 1fr) 210px;
+  }
+  [data-present="true"] .flight-map {
+    bottom: 260px;
+  }
+  [data-present="true"][data-mode="challenge"][data-result="false"]
+    .flight-map {
+    bottom: 0;
+  }
+  [data-present="true"] .metric-header,
+  [data-present="true"] .metric-row {
+    grid-template-columns: 1.4fr 1fr 1fr;
+  }
+  [data-present="true"] .metric-header > span:nth-child(4),
+  [data-present="true"] .metric-row > span:nth-child(4),
+  [data-present="true"] .fuel-note {
+    display: none;
+  }
+  [data-present="true"] .metric-row {
+    min-height: 52px;
+    font-size: 18px;
+  }
+  [data-present="true"] .metric-row > span:first-child {
+    font-size: 16px;
+  }
+  [data-present="true"] .metric-row strong {
+    font-size: 22px;
+  }
+  [data-present="true"] .metric-header {
+    font-size: 14px;
+  }
+  [data-present="true"] .comparison-result strong {
+    font-size: 30px;
+  }
+  [data-present="true"] .comparison-result span,
+  [data-present="true"] .model-note {
+    font-size: 14px;
+  }
+}
+@media (max-width: 1200px) {
+  .bar-actions .presentation-toggle {
+    display: none;
+  }
+  .app-description {
+    display: none;
+  }
+}
+@media (max-width: 850px) {
+  .bar-actions .presentation-toggle {
+    display: none;
+  }
+}
+@media (min-width: 1201px) {
+  [data-present="true"] .challenge-panel.has-result .experiment-steps {
+    display: none;
+  }
+  [data-present="true"] .experiment-body p,
+  [data-present="true"] .experiment-feedback [role="note"] {
+    font-size: 16px;
+    line-height: 1.55;
+  }
+  [data-present="true"] .experiment-feedback > strong {
+    font-size: 22px;
+  }
+  [data-present="true"] .segment-readings > div {
+    font-size: 14px;
+  }
+  [data-present="true"] .segment-readings strong {
+    font-size: 16px;
+  }
+}
+/* Let the results' actual height reserve chart space, including wrapped text. */
+@media (min-width: 851px) {
+  .map-workspace {
+    display: grid;
+    grid-template-columns: var(--rail) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+  .workspace .workspace-tools {
+    position: relative;
+    inset: auto;
+    grid-column: 1;
+    grid-row: 1 / 3;
+    width: auto;
+    min-height: 0;
+  }
+  .workspace .flight-map,
+  .workspace .map-loading {
+    position: relative;
+    inset: auto;
+    grid-column: 2;
+    grid-row: 1;
+    min-height: 0;
+  }
+  .workspace .comparison-dock {
+    position: relative;
+    inset: auto;
+    grid-column: 2;
+    grid-row: 2;
+  }
 }

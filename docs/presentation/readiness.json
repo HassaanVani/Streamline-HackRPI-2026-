@@ -1,0 +1,26 @@
+{
+  "verified_at_utc": "2026-11-07T21:59:13.530305+00:00",
+  "backend_ready": true,
+  "uncached_request": {
+    "origin_id": "KBOS",
+    "destination_id": "LFPG",
+    "wind_enabled": true
+  },
+  "scenario_id": "fef226bbac3724fa4d44",
+  "status": "complete",
+  "data_mode": "computed_forecast",
+  "forecast_valid_time": "2026-11-07T17:00:00Z",
+  "weather_payload_hash": "18a50cc04934f82bc64b71ab088fd65f55982f2910e6391486c731da4f418555",
+  "scenario_sha256": "4f94229296963ff7e5cecd448e5a35655ea180d2e8d079586e6c52089ffe7469",
+  "comparison": {
+    "time_difference_s": 230.44364080608648,
+    "percent_difference": 1.0658038501722553,
+    "meaningful": true,
+    "stable": true
+  },
+  "warnings": [
+    "FUEL_PROFILE_UNAVAILABLE",
+    "OPERATIONAL_FEASIBILITY_NOT_ASSESSED"
+  ],
+  "scope": "Local API verification, not public deployment."
+}

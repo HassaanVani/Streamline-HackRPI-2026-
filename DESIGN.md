@@ -22,3 +22,9 @@ Explore accepts worldwide airports. Challenges are optional predictions checked 
 Keep clear identities for pending, failed, saved, computed, changed selection and zero-wind states. Never substitute a saved example for a failed requested journey. Keep 250 hPa, frozen GFS, 230m/s illustrative airspeed and operational feasibility not assessed explicit. No live-aircraft or generative-AI claims.
 
 Do not restore a marketing hero, feature-card grid, fake operations status, simulated ticket, teaser slogans or decorative animation. Do not claim user validation without testing people.
+
+## Presentation typography
+
+Scientific evidence must compete successfully with the invitation heading. Normal durations use 16px monospace; desktop Present mode uses 22px durations, 30px result headings and 14px qualifications, and omits the secondary fuel index. The Present control is only offered above 1200px; the rehearsed setup is 1440px wide. Desktop chart and results share grid rows so wrapped text cannot cover chart controls.
+
+Never equate an unstable result with equality. Keep inconclusive, equal, small and reportable results distinct. The 82-minute Atlantic direction comparison and the roughly five-minute westbound route improvement answer different questions. See `docs/demo.md` for the judging narrative.

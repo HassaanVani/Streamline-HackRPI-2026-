@@ -5,6 +5,7 @@ import {
   Info,
   LoaderCircle,
   Pause,
+  Presentation,
   Play,
   RotateCcw,
   Wind,
@@ -12,6 +13,7 @@ import {
 } from "lucide-react";
 import useExplorer from "./useExplorer";
 import AirportSearch from "./AirportSearch";
+import { comparisonCopy } from "./comparisonCopy";
 import Logo from "./components/Logo";
 import Challenges from "./components/Challenges";
 import Methodology, { utc } from "./components/Methodology";
@@ -33,11 +35,21 @@ const warningText: Record<string, string> = {
 };
 
 export default function App() {
-  const [theme, setTheme] = useState<"clouds" | "atc">(() =>
-    localStorage.getItem("streamline-theme") === "atc" ? "atc" : "clouds",
-  );
+  const [theme, setTheme] = useState<"clouds" | "atc">(() => {
+    try {
+      return localStorage.getItem("streamline-theme") === "atc"
+        ? "atc"
+        : "clouds";
+    } catch {
+      return "clouds";
+    }
+  });
   useEffect(() => {
-    localStorage.setItem("streamline-theme", theme);
+    try {
+      localStorage.setItem("streamline-theme", theme);
+    } catch {
+      /* Use the selected theme for this session. */
+    }
     document
       .querySelector('meta[name="theme-color"]')
       ?.setAttribute("content", theme === "clouds" ? "#dceef8" : "#080f13");
@@ -52,6 +64,8 @@ export default function App() {
     [speed, setSpeed] = useState(900),
     [playbackStarted, setPlaybackStarted] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
+  const [presenting, setPresenting] = useState(false);
+  const resultCopy = r ? comparisonCopy(r.comparison) : null;
   const [mode, setMode] = useState<"explore" | "challenge">("explore");
   const [challengeRevealed, setChallengeRevealed] = useState(false);
   const [inspection, setInspection] = useState(false),
@@ -116,6 +130,7 @@ export default function App() {
     <div
       className="workspace"
       data-theme={theme}
+      data-present={presenting}
       data-mode={mode}
       data-result={challengeRevealed}
     >
@@ -129,6 +144,14 @@ export default function App() {
         </a>
         <span className="app-description">Wind-aware flight explorer</span>
         <div className="bar-actions">
+          <button
+            className="presentation-toggle"
+            aria-pressed={presenting}
+            onClick={() => setPresenting(!presenting)}
+          >
+            <Presentation size={17} />
+            {presenting ? "Exit presentation" : "Present"}
+          </button>
           <button
             className="theme-switch"
             role="switch"
@@ -528,7 +551,9 @@ export default function App() {
                   <span>Path</span>
                   <span>Cruise time</span>
                   <span>Distance</span>
-                  <span>Fuel index</span>
+                  <span title="Proportional to cruise time under constant fuel flow. Baseline 100.">
+                    Fuel index*
+                  </span>
                 </div>
                 {(["great_circle", "wind_optimized"] as const).map((route) => (
                   <div key={route} className={`metric-row ${route}`}>
@@ -556,16 +581,8 @@ export default function App() {
                 ))}
               </div>
               <div className="comparison-result">
-                <strong>
-                  {r.comparison.meaningful
-                    ? `About ${Math.round(Math.abs(r.comparison.time_difference_s) / 60)} min ${r.comparison.time_difference_s >= 0 ? "less" : "more"}`
-                    : "No meaningful difference"}
-                </strong>
-                <span>
-                  {r.comparison.meaningful
-                    ? `${Math.abs(r.comparison.percent_difference).toFixed(1)}% modeled cruise-time difference`
-                    : "Under these model assumptions"}
-                </span>
+                <strong>{resultCopy?.title}</strong>
+                <span>{resultCopy?.detail}</span>
                 <button
                   onClick={() => {
                     setInspection(!inspection);
@@ -579,6 +596,10 @@ export default function App() {
                 Hypothetical cruise only · 230 m/s airspeed · operational
                 feasibility not assessed
                 {!x.windEnabled ? " · Zero-wind counterfactual" : ""}
+                <span className="fuel-note">
+                  {" "}
+                  · *Fuel index assumes constant fuel flow; baseline 100.
+                </span>
               </p>
               {r.warnings
                 .filter((w) => warningText[w])

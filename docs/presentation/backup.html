@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Streamline — screenshot fallback</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#fffef9;color:#182f3b;font-family:Arial,Helvetica,sans-serif}header{padding:16px 24px;border-bottom:1px solid;display:flex;align-items:center;gap:24px}h1{font-size:20px;margin:0}header span{font-size:14px}nav{margin-left:auto;display:flex;gap:8px}button{border:1px solid #526a77;border-radius:0;background:transparent;color:inherit;min-height:44px;padding:8px 16px;font:inherit;cursor:pointer}button:disabled{opacity:.4;cursor:default}button:focus-visible{outline:3px solid #1957dc;outline-offset:3px}figure{margin:0;padding:12px 24px 0}img{width:100%;height:calc(100dvh - 240px);object-fit:contain;display:block}figcaption{max-width:1200px;margin:16px auto;font-size:22px;line-height:1.4}small{display:block;font-size:12px;margin:12px 24px;color:#526a77}@media(max-width:700px){header{flex-wrap:wrap}img{height:auto}figcaption{font-size:18px}}
+</style>
+<header><h1>STREAMLINE</h1><span>Screenshot fallback · saved forecast results</span><nav aria-label="Screenshot navigation"><button id="previous">← Previous</button><button id="next">Next →</button></nav></header>
+<figure><img id="shot" src="01-direction.png" alt="Atlantic reversal challenge and its measured result"><figcaption id="caption" aria-live="polite"></figcaption></figure>
+<small id="position"></small><small>Static captures from the working application. Illustrative cruise model, not observed flights or an operational flight plan. Arrow keys change the screenshot. No network, API or WebGL needed.</small>
+<script>
+const slides=[
+['01-direction.png','Atlantic reversal challenge and its measured result','1. Direction: roughly 6h 06m eastbound versus 7h 28m westbound. The 82-minute difference compares opposite directions, not optimization savings.'],
+['02-route.png','Westbound paths, measured comparison and segment wind inspection','2. Route choice: roughly 7h 28m versus 7h 23m in the same direction. The wind-aware path trades extra distance against wind for about five minutes of modeled improvement.'],
+['03-still-air.png','Both paths evaluated without wind','3. Counterfactual: remove wind and both paths take about 6h 41m. At constant airspeed in still air, extra distance offers no time advantage.'],
+['04-method.png','Forecast provenance and model assumptions','4. Evidence: frozen NOAA GFS winds, 250 hPa, illustrative 230 m/s airspeed, shared evaluator, directed Dijkstra, and a finer-grid check. Real dispatch constraints and aircraft-specific performance are excluded.']];
+let index=0;const shot=document.getElementById('shot'),caption=document.getElementById('caption'),previous=document.getElementById('previous'),next=document.getElementById('next');
+function show(value){index=Math.max(0,Math.min(slides.length-1,value));shot.src=slides[index][0];shot.alt=slides[index][1];caption.textContent=slides[index][2];document.getElementById('position').textContent=`${index+1} / ${slides.length}`;previous.disabled=index===0;next.disabled=index===slides.length-1;}
+previous.addEventListener('click',()=>show(index-1));next.addEventListener('click',()=>show(index+1));document.addEventListener('keydown',e=>{if(['ArrowRight','ArrowLeft','Home','End'].includes(e.key)){e.preventDefault();show(e.key==='Home'?0:e.key==='End'?slides.length-1:index+(e.key==='ArrowRight'?1:-1));}});show(0);
+</script></html>

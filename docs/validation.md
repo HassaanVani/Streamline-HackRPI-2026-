@@ -39,3 +39,11 @@ The compact Options panel was used to turn off model winds. JFK–LHR recalculat
 ## Chart-desk visual overhaul
 
 Seven frontend tests pass and production compilation succeeds. Browser QA checked airport search with keyboard selection, changed-selection identity, zero-wind recomputation, saved CDG–FRA, seeking, segment inspection, methodology, challenge prediction by Space/Enter, palette switching and the 390 × 844 layout. Computed styles on the challenge panel, results, mode controls and theme switch confirm zero radius, no shadow and no backdrop blur. The phone page has a 390px document width. The map now observes its real chart region when it resizes. Screenshots use the `chart-desk-` prefix. This remains implementation QA; peer comprehension testing is still pending.
+
+## Typography and presentation readiness
+
+Independent read-only subagent audit and recheck are summarized in `presentation/audit.md`. Updated evidence typography and desktop Present mode were checked at 1440 × 900: measured duration text is 22px and result text 30px. Standard layouts were checked at 1024 × 768 and 390 × 844 without horizontal overflow. The chart and comparison now share grid rows: at 1024px, map bottom and result top both measured 498.203125px, keeping chart navigation visible despite wrapped copy.
+
+The complete bundled judging sequence was exercised with keyboard prediction, westbound route inspection, still-air evaluation and methodology. Four actual screenshots and a standalone keyboard-navigable fallback are in `presentation/`; the fallback was opened and its image loading/navigation checked. It is a screenshot fallback, not a recording. Nine frontend and 25 backend tests pass. New tests distinguish unstable, equal, small and subminute results.
+
+The backend was restarted and an uncached KBOS–LFPG job completed as `computed_forecast`, stable, with a 1.0658% modeled difference. Timestamp, scenario identity and payload hash are in `presentation/readiness.json`. Local readiness does not establish public Vultr deployment. The live weather request remains outside the three-minute core script.

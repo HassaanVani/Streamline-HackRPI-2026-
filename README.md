@@ -97,13 +97,12 @@ npm run build
 npm audit --omit=dev --audit-level=high
 ```
 
-CI checks tests, schema synchronization, TypeScript, the production build, dependency advisories, Compose syntax, and a container build with HTTP smoke tests. See [validation evidence](docs/validation.md) and [the three-minute demo script](docs/demo.md). Five-peer comprehension testing must be performed with real people; it is not replaced by automated tests.
+CI checks tests, schema synchronization, TypeScript, the production build, dependency advisories, Compose syntax, and a container build with HTTP smoke tests. See [validation evidence](docs/validation.md) and [the three-minute demo script](docs/demo.md), [independent presentation audit](docs/presentation/audit.md), and [offline screenshot fallback](docs/presentation/backup.html). Five-peer comprehension testing must be performed with real people; it is not replaced by automated tests.
 
 ## Attribution
 
 - **Open-Meteo / NOAA GFS**: weather data, [CC BY 4.0 and noncommercial API terms](https://open-meteo.com/en/terms). Each scenario includes the requested model, valid time, retrieval time, source URL, payload hash and attribution. A forecast is not an observation or a verified reconstruction.
 - **OurAirports**: dated airport data, [public domain](https://ourairports.com/data/). Community data may contain errors; acquisition metadata is in `data/airports-provenance.json`.
 - **Natural Earth**: bundled country geometry, [public domain](https://www.naturalearthdata.com/about/terms-of-use/), from the [maintainer's dataset](https://github.com/nvkelso/natural-earth-vector).
-- Interface fonts: DM Sans and IBM Plex Mono via Google Fonts, with system fallbacks. The app remains usable if fonts fail to load.
 
 Dependency licenses remain with their respective authors. The original technical design is retained alongside the application.

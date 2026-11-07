@@ -2,7 +2,7 @@
 
 ## Automated checks
 
-The local backend suite covers analytical zero wind, along-wind and crosswind physics, meteorological direction, invalid edges, vector interpolation, antimeridian and high-latitude geometry, Dijkstra/A* equivalence, baseline inclusion, missing weather, provider quota/schema failures, saved replay, reverse direction, wind-off, queue bounds, deduplication, failed jobs, expired IDs and subprocess termination on deadline.
+All 25 local backend tests pass. The suite covers analytical zero wind, along-wind and crosswind physics, meteorological direction, invalid edges, vector interpolation, antimeridian and high-latitude geometry, Dijkstra/A* equivalence, baseline inclusion, missing weather, provider quota/schema failures, saved replay, reverse direction, wind-off, queue bounds, deduplication, failed jobs, expired IDs and subprocess termination on deadline.
 
 `fixture-validation.json` records network-free replays of all 12 saved scenarios, their payload and scenario hashes, numerical comparisons, grid sensitivity and measured solve durations. The fine-grid check is an engineering stability check, not a guarantee of meteorological or aircraft-model accuracy.
 
@@ -12,10 +12,10 @@ Frontend checks include generated OpenAPI types, strict TypeScript compilation, 
 
 ## Browser checks
 
-Desktop and mobile checks are recorded after the final browser pass. The implementation includes keyboard combobox selection, reduced-motion behavior, static arrows, a keyboard segment inspector, a native modal drawer, non-color route labels, and the text comparison outside the map canvas.
+Browser verification passed at 1440 × 1000 and 390 × 844. The 390-pixel page has no horizontal overflow. Verified saved reveal, wind-off recalculation, reverse direction, the methodology dialog, worldwide HND/LAX search using Enter, computed antimeridian rendering, and keyboard segment inspection. With the API deliberately stopped, saved CDG–FRA, its reverse and wind-off variants remained usable. Screenshots are in `docs/screenshots/`. The implementation includes keyboard combobox selection, reduced-motion behavior, static arrows, a keyboard segment inspector, a native modal drawer, non-color route labels, and the text comparison outside the map canvas.
 
 ## Deployment and remaining human checks
 
-Vultr deployment is prepared with a multistage Dockerfile, Compose configuration, Caddy and health checks. Public deployment remains pending the owner's Vultr account and promotional credit activation. Docker is not installed on the developer machine; CI performs the container build and HTTP smoke tests.
+Vultr deployment is prepared with a multistage Dockerfile, Compose configuration, Caddy and health checks. Public deployment remains pending the owner's Vultr account and promotional credit activation. Docker is not installed on the developer machine. [GitHub Actions run 42397360243](https://github.com/HassaanVani/Streamline-HackRPI-2026-/actions/runs/42397360243) passed the Linux container build and HTTP smoke tests, including health, static HTML and saved example index. Public Vultr runtime checks remain pending account setup.
 
 Five-peer comprehension testing, the in-person judged presentation and Devpost submission require real participants and have not been completed by the implementation agent. Use `docs/demo.md` to conduct and record them. A backup screen recording is also a human handoff unless a recorded artifact is added later.

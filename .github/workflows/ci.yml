@@ -21,6 +21,7 @@ jobs:
       - run: git diff --exit-code -- docs/openapi.json frontend/src/api.generated.ts
       - run: cd frontend && npm audit --omit=dev --audit-level=high
       - run: docker compose config --quiet
+      - run: docker run --rm -e SITE_ADDRESS=:80 -v "$PWD/deploy/Caddyfile:/etc/caddy/Caddyfile:ro" caddy:2.10.2-alpine caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
       - run: docker build -t streamline:ci .
       - run: |
           docker run -d --name streamline-ci -p 8000:8000 streamline:ci

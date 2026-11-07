@@ -51,10 +51,11 @@ export default function FlightMap({scenario,showWinds,onToggleWinds,showAlternat
       const coords=unwrap(s.routes.features[0].geometry.coordinates);
       const bounds=new maplibregl.LngLatBounds(coords[0] as [number,number],coords[0] as [number,number]);
       for(const p of coords)bounds.extend(p as [number,number]);
-      const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      m.fitBounds(bounds,{padding:{top:150,bottom:150,left:75,right:75},maxZoom:6,duration:reduced?0:900});
+      // fitBounds retains global padding; reset it before repeated resize fits.
+      m.setPadding({top:0,bottom:0,left:0,right:0});
+      m.fitBounds(bounds,{padding:{top:145,bottom:95,left:65,right:65},maxZoom:6,duration:0});
     };
-    m.on('move',()=>draw.current());m.on('resize',()=>draw.current());
+    m.on('move',()=>draw.current());m.on('resize',()=>{draw.current();fit.current();});
     m.on('style.load',()=>{
       m.addSource('routes',{type:'geojson',data:{type:'FeatureCollection',features:[]}});
       m.addLayer({id:'baseline',type:'line',source:'routes',filter:['==',['get','kind'],'great_circle'],paint:{'line-color':'#b9c7ce','line-width':2,'line-opacity':.75}});

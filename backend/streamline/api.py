@@ -51,10 +51,8 @@ class Service:
     def __init__(self):
         self.queue = asyncio.Queue(maxsize=2)
         self.jobs = OrderedDict()
-        self.identities = {}
         self.active = False
         self.calls = deque()
-        self.weather_cache = OrderedDict()
         self.saved = {}
         self.lookup = {a['id']:a for a in airports()}
         self.examples = json.loads((DATA/'examples.json').read_text())

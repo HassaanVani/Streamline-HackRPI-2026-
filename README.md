@@ -1,6 +1,6 @@
 # Streamline
 
-**See the air. Rethink the route.** A public aviation explorer built at HackRPI 2026. Pick airports worldwide, reveal a frozen GFS wind field, and compare a shortest-distance path with a hypothetical wind-aware route.
+**Why fly this way?** A public aviation explorer built at HackRPI 2026. Pick airports worldwide, reveal a frozen GFS wind field, and compare a shortest-distance path with a hypothetical wind-aware route.
 
 This is an educational cruise model. Neither path is an observed flight or an operational flight plan. It does not establish airline inefficiency or avoidable emissions.
 
@@ -36,6 +36,10 @@ docker compose logs --tail=100
 ```
 
 No GPU, Kubernetes cluster, database, paid map API, or flight-data subscription is needed. New scenarios and weather caches are temporary. Saved examples are versioned in the image and repository.
+
+## Interface design
+
+The cloud-led experience follows the technical document’s public demo journey: choose airports, see the wind, compare a hypothetical route, and inspect field notes. The original SVG paper plane and clouds are decorative; the map arrows use the actual saved forecast vectors. A global motion control and reduced-motion defaults allow static exploration. See [design research and rationale](docs/design-research.md).
 
 ## What the model does
 
@@ -98,6 +102,6 @@ CI checks tests, schema synchronization, TypeScript, the production build, depen
 - **Open-Meteo / NOAA GFS**: weather data, [CC BY 4.0 and noncommercial API terms](https://open-meteo.com/en/terms). Each scenario includes the requested model, valid time, retrieval time, source URL, payload hash and attribution. A forecast is not an observation or a verified reconstruction.
 - **OurAirports**: dated airport data, [public domain](https://ourairports.com/data/). Community data may contain errors; acquisition metadata is in `data/airports-provenance.json`.
 - **Natural Earth**: bundled country geometry, [public domain](https://www.naturalearthdata.com/about/terms-of-use/), from the [maintainer's dataset](https://github.com/nvkelso/natural-earth-vector).
-- Interface fonts: DM Sans and Manrope via Google Fonts, with system fallbacks. The app remains usable if fonts fail to load.
+- Interface fonts: Barlow Condensed, DM Sans, IBM Plex Mono and Instrument Serif via Google Fonts, with system fallbacks. The app remains usable if fonts fail to load.
 
 Dependency licenses remain with their respective authors. The original technical design is retained alongside the application.

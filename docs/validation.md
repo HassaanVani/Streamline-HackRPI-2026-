@@ -19,3 +19,9 @@ Browser verification passed at 1440 × 1000 and 390 × 844. The 390-pixel page h
 Vultr deployment is prepared with a multistage Dockerfile, Compose configuration, Caddy and health checks. Public deployment remains pending the owner's Vultr account and promotional credit activation. Docker is not installed on the developer machine. [GitHub Actions run 42397360243](https://github.com/HassaanVani/Streamline-HackRPI-2026-/actions/runs/42397360243) passed the Linux container build and HTTP smoke tests, including health, static HTML and saved example index. Public Vultr runtime checks remain pending account setup.
 
 Five-peer comprehension testing, the in-person judged presentation and Devpost submission require real participants and have not been completed by the implementation agent. Use `docs/demo.md` to conduct and record them. A backup screen recording is also a human handoff unless a recorded artifact is added later.
+
+## Cloud experience redesign
+
+The replacement interface was checked at 1280 × 720 and 390 × 844. The phone layout has no horizontal overflow. Verified the opening-to-explorer link, mobile airport listbox placement and Enter selection, the CDG–FRA saved comparison, still-air recalculation, LHR–JFK reverse comparison (7h 28m baseline / 7h 23m alternative), pause control and static-arrow label, Escape dismissal of field notes, and keyboard segment navigation. The map animation pauses while its surface is offscreen. The scientific evaluator remains unchanged, and all 12 saved fixtures still replay within 1e-6.
+
+Research and the design decisions are recorded in `docs/design-research.md`. New evidence uses the `redesign-` screenshot prefix to distinguish it from the original interface. This is functional and visual QA, not five-peer comprehension testing or an accessibility conformance certification.

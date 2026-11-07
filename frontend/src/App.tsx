@@ -32,6 +32,15 @@ const warningText: Record<string, string> = {
 };
 
 export default function App() {
+  const [theme, setTheme] = useState<"clouds" | "atc">(() =>
+    localStorage.getItem("streamline-theme") === "atc" ? "atc" : "clouds",
+  );
+  useEffect(() => {
+    localStorage.setItem("streamline-theme", theme);
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute("content", theme === "clouds" ? "#dceef8" : "#080f13");
+  }, [theme]);
   const x = useExplorer(),
     r = x.scenario;
   const [paused, setPaused] = useState(
@@ -101,7 +110,7 @@ export default function App() {
     setPlaying(true);
   }
   return (
-    <div className="workspace">
+    <div className="workspace" data-theme={theme}>
       <a className="skip-link" href="#route-controls">
         Skip to route controls
       </a>
@@ -112,6 +121,16 @@ export default function App() {
         </a>
         <span className="app-description">Wind-aware flight explorer</span>
         <div className="bar-actions">
+          <button
+            className="theme-switch"
+            role="switch"
+            aria-checked={theme === "atc"}
+            aria-label="ATC theme"
+            onClick={() => setTheme(theme === "clouds" ? "atc" : "clouds")}
+          >
+            <span className={theme === "clouds" ? "active" : ""}>Clouds</span>
+            <span className={theme === "atc" ? "active" : ""}>ATC</span>
+          </button>
           <button onClick={() => x.setMethodology(true)}>
             <Info size={16} />
             Model & data
@@ -134,6 +153,7 @@ export default function App() {
           }
         >
           <FlightMap
+            theme={theme}
             scenario={r}
             showWinds={x.showWinds}
             showAlternative={true}

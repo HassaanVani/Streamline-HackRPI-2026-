@@ -30,3 +30,13 @@ These apply the principles researched in [Nielsen Norman Group's heuristics](htt
 ## Checks
 
 Playback has automated cases for unequal segment durations, a shared clock with different arrival times, longitude wrapping, elapsed-time bounds and malformed timing. Browser QA covers playback advancement, seeking, direct map inspection, keyboard inspection, route calculation, still-air recalculation and narrow layouts. The existing scientific solver remains unchanged.
+
+## ATC-inspired visual treatment
+
+The map workspace now uses a dark radar palette, restrained green geography and vectors, amber for the hypothetical alternative, square endpoint symbols, monospaced readouts and sharper panel edges. A geographic latitude/longitude graticule replaces decorative grid imagery. There is no radar sweep, fabricated callsign, squawk, clearance or live-traffic status. Data values and calculations are unchanged.
+
+### Clouds default and optional ATC theme
+
+The default workspace uses pale sky-blue water, cloud-white land and panels, and teal alternatives. A keyboard-accessible Clouds / ATC switch changes both MapLibre layers and the controls without resetting the selected journey or playback. The preference persists locally. The real latitude/longitude grid remains subtle in both palettes.
+
+Verified both palettes in the browser, preference persistence after reload, and the 390 × 844 layout with no horizontal overflow. Four playback tests and the production build pass. Explicitly bundle the MapLibre worker URL so Vite does not resolve it relative to its dependency cache. Screenshots: `screenshots/clouds-theme-desktop.png` and `screenshots/clouds-theme-phone.png`.

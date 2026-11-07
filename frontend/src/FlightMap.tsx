@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as maplibregl from "maplibre-gl";
+import mapWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
+maplibregl.setWorkerUrl(mapWorkerUrl);
 import { Minus, Plus, RotateCcw } from "lucide-react";
 import type { Scenario } from "./types";
 import { routePosition } from "./playback";
@@ -15,6 +17,7 @@ function unwrap(coords: number[][]) {
 }
 
 export default function FlightMap({
+  theme,
   scenario,
   showWinds,
   showAlternative,
@@ -24,6 +27,7 @@ export default function FlightMap({
   inspectKind,
   onInspect,
 }: {
+  theme: "clouds" | "atc";
   scenario: Scenario | null;
   showWinds: boolean;
   showAlternative: boolean;
@@ -42,6 +46,7 @@ export default function FlightMap({
     showAlternative,
     segment,
     motionPaused,
+    theme,
     onInspect,
   });
   current.current = {
@@ -50,6 +55,7 @@ export default function FlightMap({
     showAlternative,
     segment,
     motionPaused,
+    theme,
     onInspect,
   };
   const [ready, setReady] = useState(false),
@@ -94,20 +100,20 @@ export default function FlightMap({
             {
               id: "background",
               type: "background",
-              paint: { "background-color": "#dcecf2" },
+              paint: { "background-color": "#080f13" },
             },
             {
               id: "land",
               type: "fill",
               source: "land",
-              paint: { "fill-color": "#f0f2eb", "fill-opacity": 1 },
+              paint: { "fill-color": "#0d1b1a", "fill-opacity": 1 },
             },
             {
               id: "borders",
               type: "line",
               source: "land",
               paint: {
-                "line-color": "#adbfc4",
+                "line-color": "#29453b",
                 "line-width": 0.7,
                 "line-opacity": 0.5,
               },
@@ -154,7 +160,7 @@ export default function FlightMap({
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.rotate(angle);
-        ctx.strokeStyle = "#527994";
+        ctx.strokeStyle = state.theme === "atc" ? "#46765f" : "#6a9ab5";
         ctx.lineWidth = 1.1;
         ctx.beginPath();
         ctx.moveTo(-length / 2, 0);
@@ -169,7 +175,10 @@ export default function FlightMap({
             ((performance.now() * (0.008 + speed * 0.0002) + index * 13) %
               travel) -
             travel / 2;
-          ctx.strokeStyle = "rgba(255,255,255,.92)";
+          ctx.strokeStyle =
+            state.theme === "atc"
+              ? "rgba(160,231,187,.85)"
+              : "rgba(37,119,160,.8)";
           ctx.lineWidth = 2;
           ctx.beginPath();
           ctx.moveTo(phase - 6, 0);
@@ -269,6 +278,45 @@ export default function FlightMap({
       m.getCanvas().style.cursor = hits.length ? "crosshair" : "";
     });
     m.on("style.load", () => {
+      const grid: GeoJSON.Feature[] = [];
+      for (let lon = -180; lon <= 180; lon += 10)
+        grid.push({
+          type: "Feature",
+          properties: {},
+          geometry: {
+            type: "LineString",
+            coordinates: Array.from({ length: 81 }, (_, i) => [
+              lon,
+              -80 + i * 2,
+            ]),
+          },
+        });
+      for (let lat = -80; lat <= 80; lat += 10)
+        grid.push({
+          type: "Feature",
+          properties: {},
+          geometry: {
+            type: "LineString",
+            coordinates: Array.from({ length: 181 }, (_, i) => [
+              -180 + i * 2,
+              lat,
+            ]),
+          },
+        });
+      m.addSource("graticule", {
+        type: "geojson",
+        data: { type: "FeatureCollection", features: grid },
+      });
+      m.addLayer({
+        id: "graticule",
+        type: "line",
+        source: "graticule",
+        paint: {
+          "line-color": "#2b4d3d",
+          "line-width": 0.6,
+          "line-opacity": 0.35,
+        },
+      });
       m.addSource("contours", {
         type: "geojson",
         data: { type: "FeatureCollection", features: [] },
@@ -278,7 +326,7 @@ export default function FlightMap({
         type: "line",
         source: "contours",
         paint: {
-          "line-color": "#6a9fb6",
+          "line-color": "#477956",
           "line-opacity": 0.38,
           "line-width": 1,
         },
@@ -298,8 +346,8 @@ export default function FlightMap({
         source: "routes",
         filter: ["==", ["get", "kind"], "great_circle"],
         paint: {
-          "line-color": "#5e7991",
-          "line-width": 2.5,
+          "line-color": "#83aaa3",
+          "line-width": 1.5,
           "line-opacity": 0.8,
         },
       });
@@ -309,7 +357,7 @@ export default function FlightMap({
         source: "routes",
         filter: ["==", ["get", "kind"], "wind_optimized"],
         paint: {
-          "line-color": "#e97a4e",
+          "line-color": "#dbbb79",
           "line-width": 12,
           "line-opacity": 0.1,
           "line-blur": 5,
@@ -321,8 +369,8 @@ export default function FlightMap({
         source: "routes",
         filter: ["==", ["get", "kind"], "wind_optimized"],
         paint: {
-          "line-color": "#b84e2c",
-          "line-width": 3.5,
+          "line-color": "#dbbb79",
+          "line-width": 2,
           "line-dasharray": [3, 2],
         },
       });
@@ -336,9 +384,9 @@ export default function FlightMap({
         source: "segment",
         paint: {
           "circle-radius": 5,
-          "circle-color": "#fff",
-          "circle-stroke-color": "#b84e2c",
-          "circle-stroke-width": 3,
+          "circle-color": "#0a1610",
+          "circle-stroke-color": "#dbbb79",
+          "circle-stroke-width": 1.5,
         },
       });
       m.addLayer({
@@ -346,16 +394,16 @@ export default function FlightMap({
         type: "circle",
         source: "flight-positions",
         paint: {
-          "circle-radius": 7,
+          "circle-radius": 5,
           "circle-color": [
             "match",
             ["get", "kind"],
             "great_circle",
-            "#355f7b",
-            "#b84e2c",
+            "#83aaa3",
+            "#dbbb79",
           ],
-          "circle-stroke-width": 3,
-          "circle-stroke-color": "#fff",
+          "circle-stroke-width": 1.5,
+          "circle-stroke-color": "#0a1610",
         },
       });
       setReady(true);
@@ -366,6 +414,46 @@ export default function FlightMap({
       map.current = null;
     };
   }, []);
+  useEffect(() => {
+    const m = map.current;
+    if (!m || !ready) return;
+    const dark = theme === "atc";
+    const alt = dark ? "#dbbb79" : "#087f96",
+      base = dark ? "#83aaa3" : "#6d8194";
+    const paints: [
+      string,
+      (
+        | "background-color"
+        | "fill-color"
+        | "line-color"
+        | "circle-color"
+        | "circle-stroke-color"
+      ),
+      string,
+    ][] = [
+      ["background", "background-color", dark ? "#080f13" : "#dceef8"],
+      ["land", "fill-color", dark ? "#0d1b1a" : "#f3f8fa"],
+      ["borders", "line-color", dark ? "#29453b" : "#a2bfd0"],
+      ["graticule", "line-color", dark ? "#2b4d3d" : "#b3d3e5"],
+      ["contours", "line-color", dark ? "#477956" : "#7eb6cf"],
+      ["baseline", "line-color", base],
+      ["alternative", "line-color", alt],
+      ["alternative-glow", "line-color", alt],
+      ["segment", "circle-color", dark ? "#0a1610" : "#ffffff"],
+      ["segment", "circle-stroke-color", alt],
+      ["flight-positions", "circle-stroke-color", dark ? "#0a1610" : "#ffffff"],
+    ];
+    for (const [layer, property, value] of paints)
+      m.setPaintProperty(layer, property, value);
+    m.setPaintProperty("flight-positions", "circle-color", [
+      "match",
+      ["get", "kind"],
+      "great_circle",
+      base,
+      alt,
+    ]);
+    draw.current();
+  }, [theme, ready]);
   useEffect(() => {
     const m = map.current;
     if (!m || !ready || !scenario) return;

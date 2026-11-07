@@ -11,8 +11,8 @@ export default function Logo() {
         cx="30"
         cy="27"
         r="3"
-        fill="#bd5735"
-        stroke="#fff"
+        fill="#dbbb79"
+        stroke="#101e19"
         strokeWidth="1.5"
       />
     </svg>

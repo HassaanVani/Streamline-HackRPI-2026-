@@ -1,0 +1,1199 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Streamline API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/v1/airports": {
+      "get": {
+        "summary": "Airport Search",
+        "operationId": "airport_search_api_v1_airports_get",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 100,
+              "default": "",
+              "title": "Q"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Airport"
+                  },
+                  "title": "Response Airport Search Api V1 Airports Get"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Gateway Timeout"
+          }
+        }
+      }
+    },
+    "/api/v1/examples": {
+      "get": {
+        "summary": "Examples",
+        "operationId": "examples_api_v1_examples_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Example"
+                  },
+                  "type": "array",
+                  "title": "Response Examples Api V1 Examples Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/scenarios": {
+      "post": {
+        "summary": "Create Scenario",
+        "operationId": "create_scenario_api_v1_scenarios_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScenarioRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/ScenarioResult"
+                    },
+                    {
+                      "$ref": "#/components/schemas/Job"
+                    }
+                  ],
+                  "title": "Response Create Scenario Api V1 Scenarios Post"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too Many Requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway Timeout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Job"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/scenarios/{id}": {
+      "get": {
+        "summary": "Scenario",
+        "operationId": "scenario_api_v1_scenarios__id__get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/ScenarioResult"
+                    },
+                    {
+                      "$ref": "#/components/schemas/Job"
+                    }
+                  ],
+                  "title": "Response Scenario Api V1 Scenarios  Id  Get"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Gateway Timeout"
+          }
+        }
+      }
+    },
+    "/api/v1/scenarios/{id}/winds": {
+      "get": {
+        "summary": "Winds",
+        "operationId": "winds_api_v1_scenarios__id__winds_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Winds"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          },
+          "504": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Gateway Timeout"
+          }
+        }
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Airport": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "ident": {
+            "type": "string",
+            "title": "Ident"
+          },
+          "iata": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Iata"
+          },
+          "icao": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Icao"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "latitude_deg": {
+            "type": "number",
+            "title": "Latitude Deg"
+          },
+          "longitude_deg": {
+            "type": "number",
+            "title": "Longitude Deg"
+          },
+          "country": {
+            "type": "string",
+            "title": "Country"
+          },
+          "municipality": {
+            "type": "string",
+            "title": "Municipality"
+          },
+          "snapshot_id": {
+            "type": "string",
+            "title": "Snapshot Id"
+          },
+          "scheduled_service": {
+            "type": "boolean",
+            "title": "Scheduled Service"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "ident",
+          "iata",
+          "icao",
+          "name",
+          "latitude_deg",
+          "longitude_deg",
+          "country",
+          "municipality",
+          "snapshot_id",
+          "scheduled_service"
+        ],
+        "title": "Airport"
+      },
+      "Assumptions": {
+        "properties": {
+          "tas_mps": {
+            "type": "number",
+            "title": "Tas Mps"
+          },
+          "pressure_hpa": {
+            "type": "integer",
+            "title": "Pressure Hpa"
+          },
+          "wind_model": {
+            "type": "string",
+            "title": "Wind Model"
+          },
+          "fuel_method": {
+            "type": "string",
+            "title": "Fuel Method"
+          },
+          "solver": {
+            "type": "string",
+            "title": "Solver"
+          },
+          "grid": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Grid"
+          },
+          "validation_grid": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Validation Grid"
+          },
+          "weather_grid": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Weather Grid"
+          },
+          "feasibility": {
+            "type": "string",
+            "title": "Feasibility"
+          },
+          "extent": {
+            "type": "string",
+            "title": "Extent"
+          },
+          "exclusions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Exclusions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tas_mps",
+          "pressure_hpa",
+          "wind_model",
+          "fuel_method",
+          "solver",
+          "grid",
+          "validation_grid",
+          "weather_grid",
+          "feasibility",
+          "extent",
+          "exclusions"
+        ],
+        "title": "Assumptions"
+      },
+      "Comparison": {
+        "properties": {
+          "time_difference_s": {
+            "type": "number",
+            "title": "Time Difference S"
+          },
+          "percent_difference": {
+            "type": "number",
+            "title": "Percent Difference"
+          },
+          "meaningful": {
+            "type": "boolean",
+            "title": "Meaningful"
+          },
+          "stable": {
+            "type": "boolean",
+            "title": "Stable"
+          }
+        },
+        "type": "object",
+        "required": [
+          "time_difference_s",
+          "percent_difference",
+          "meaningful",
+          "stable"
+        ],
+        "title": "Comparison"
+      },
+      "ErrorDetail": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "retryable": {
+            "type": "boolean",
+            "title": "Retryable"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "retryable"
+        ],
+        "title": "ErrorDetail"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorDetail"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "error",
+          "request_id"
+        ],
+        "title": "ErrorResponse"
+      },
+      "Example": {
+        "properties": {
+          "scenario_id": {
+            "type": "string",
+            "title": "Scenario Id"
+          },
+          "origin_id": {
+            "type": "string",
+            "title": "Origin Id"
+          },
+          "destination_id": {
+            "type": "string",
+            "title": "Destination Id"
+          },
+          "wind_enabled": {
+            "type": "boolean",
+            "title": "Wind Enabled"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "percent_difference": {
+            "type": "number",
+            "title": "Percent Difference"
+          },
+          "valid_time": {
+            "type": "string",
+            "title": "Valid Time"
+          },
+          "data_mode": {
+            "type": "string",
+            "title": "Data Mode"
+          },
+          "attribution": {
+            "type": "string",
+            "title": "Attribution"
+          },
+          "featured": {
+            "type": "boolean",
+            "title": "Featured"
+          }
+        },
+        "type": "object",
+        "required": [
+          "scenario_id",
+          "origin_id",
+          "destination_id",
+          "wind_enabled",
+          "label",
+          "percent_difference",
+          "valid_time",
+          "data_mode",
+          "attribution",
+          "featured"
+        ],
+        "title": "Example"
+      },
+      "Feature": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "Feature",
+            "title": "Type"
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "properties": {
+            "$ref": "#/components/schemas/RouteProperties"
+          },
+          "geometry": {
+            "$ref": "#/components/schemas/Geometry"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "id",
+          "properties",
+          "geometry"
+        ],
+        "title": "Feature"
+      },
+      "Geometry": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "LineString",
+            "title": "Type"
+          },
+          "coordinates": {
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "title": "Coordinates"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "title": "Geometry"
+      },
+      "Job": {
+        "properties": {
+          "scenario_id": {
+            "type": "string",
+            "title": "Scenario Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "queued",
+              "running",
+              "failed"
+            ],
+            "title": "Status"
+          },
+          "result_url": {
+            "type": "string",
+            "title": "Result Url"
+          },
+          "stage": {
+            "type": "string",
+            "title": "Stage"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ErrorDetail"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "scenario_id",
+          "status",
+          "result_url",
+          "stage"
+        ],
+        "title": "Job"
+      },
+      "Metrics": {
+        "properties": {
+          "distance_m": {
+            "type": "number",
+            "title": "Distance M"
+          },
+          "modeled_duration_s": {
+            "type": "number",
+            "title": "Modeled Duration S"
+          },
+          "fuel_kg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Fuel Kg"
+          },
+          "co2_kg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Co2 Kg"
+          },
+          "fuel_index": {
+            "type": "number",
+            "title": "Fuel Index"
+          },
+          "segment_metrics": {
+            "items": {
+              "$ref": "#/components/schemas/Segment"
+            },
+            "type": "array",
+            "title": "Segment Metrics"
+          }
+        },
+        "type": "object",
+        "required": [
+          "distance_m",
+          "modeled_duration_s",
+          "fuel_kg",
+          "co2_kg",
+          "fuel_index",
+          "segment_metrics"
+        ],
+        "title": "Metrics"
+      },
+      "Provenance": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "source_url": {
+            "type": "string",
+            "title": "Source Url"
+          },
+          "valid_time": {
+            "type": "string",
+            "title": "Valid Time"
+          },
+          "pressure_hpa": {
+            "type": "integer",
+            "title": "Pressure Hpa"
+          },
+          "retrieved_at": {
+            "type": "string",
+            "title": "Retrieved At"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Id"
+          },
+          "payload_hash": {
+            "type": "string",
+            "title": "Payload Hash"
+          },
+          "request_parameters": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Request Parameters"
+          },
+          "attribution": {
+            "type": "string",
+            "title": "Attribution"
+          },
+          "license_url": {
+            "type": "string",
+            "title": "License Url"
+          },
+          "weather_locations": {
+            "type": "integer",
+            "title": "Weather Locations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider",
+          "model",
+          "source_url",
+          "valid_time",
+          "pressure_hpa",
+          "retrieved_at",
+          "run_id",
+          "payload_hash",
+          "request_parameters",
+          "attribution",
+          "license_url",
+          "weather_locations"
+        ],
+        "title": "Provenance"
+      },
+      "RouteProperties": {
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "great_circle",
+              "wind_optimized"
+            ],
+            "title": "Kind"
+          },
+          "feasibility": {
+            "type": "string",
+            "const": "not_assessed",
+            "title": "Feasibility"
+          },
+          "display_label": {
+            "type": "string",
+            "title": "Display Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "kind",
+          "feasibility",
+          "display_label"
+        ],
+        "title": "RouteProperties"
+      },
+      "Routes": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "FeatureCollection",
+            "title": "Type"
+          },
+          "features": {
+            "items": {
+              "$ref": "#/components/schemas/Feature"
+            },
+            "type": "array",
+            "title": "Features"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "features"
+        ],
+        "title": "Routes"
+      },
+      "ScenarioRequest": {
+        "properties": {
+          "origin_id": {
+            "type": "string",
+            "maxLength": 16,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9-]+$",
+            "title": "Origin Id"
+          },
+          "destination_id": {
+            "type": "string",
+            "maxLength": 16,
+            "minLength": 1,
+            "pattern": "^[A-Za-z0-9-]+$",
+            "title": "Destination Id"
+          },
+          "wind_enabled": {
+            "type": "boolean",
+            "title": "Wind Enabled",
+            "default": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "origin_id",
+          "destination_id"
+        ],
+        "title": "ScenarioRequest"
+      },
+      "ScenarioResult": {
+        "properties": {
+          "scenario_id": {
+            "type": "string",
+            "title": "Scenario Id"
+          },
+          "status": {
+            "type": "string",
+            "const": "complete",
+            "title": "Status"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version"
+          },
+          "origin": {
+            "$ref": "#/components/schemas/Airport"
+          },
+          "destination": {
+            "$ref": "#/components/schemas/Airport"
+          },
+          "wind_enabled": {
+            "type": "boolean",
+            "title": "Wind Enabled"
+          },
+          "data_mode": {
+            "type": "string",
+            "enum": [
+              "saved_forecast",
+              "computed_forecast"
+            ],
+            "title": "Data Mode"
+          },
+          "routes": {
+            "$ref": "#/components/schemas/Routes"
+          },
+          "metrics": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/Metrics"
+            },
+            "type": "object",
+            "title": "Metrics"
+          },
+          "comparison_baseline_id": {
+            "type": "string",
+            "title": "Comparison Baseline Id"
+          },
+          "comparison": {
+            "$ref": "#/components/schemas/Comparison"
+          },
+          "assumptions": {
+            "$ref": "#/components/schemas/Assumptions"
+          },
+          "provenance": {
+            "$ref": "#/components/schemas/Provenance"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "validation": {
+            "$ref": "#/components/schemas/Validation"
+          },
+          "winds": {
+            "$ref": "#/components/schemas/Winds"
+          }
+        },
+        "type": "object",
+        "required": [
+          "scenario_id",
+          "status",
+          "model_version",
+          "origin",
+          "destination",
+          "wind_enabled",
+          "data_mode",
+          "routes",
+          "metrics",
+          "comparison_baseline_id",
+          "comparison",
+          "assumptions",
+          "provenance",
+          "warnings",
+          "validation",
+          "winds"
+        ],
+        "title": "ScenarioResult"
+      },
+      "Segment": {
+        "properties": {
+          "lon": {
+            "type": "number",
+            "title": "Lon"
+          },
+          "lat": {
+            "type": "number",
+            "title": "Lat"
+          },
+          "wind_mps": {
+            "type": "number",
+            "title": "Wind Mps"
+          },
+          "along_mps": {
+            "type": "number",
+            "title": "Along Mps"
+          },
+          "cross_mps": {
+            "type": "number",
+            "title": "Cross Mps"
+          },
+          "ground_speed_mps": {
+            "type": "number",
+            "title": "Ground Speed Mps"
+          },
+          "modeled_duration_s": {
+            "type": "number",
+            "title": "Modeled Duration S"
+          }
+        },
+        "type": "object",
+        "required": [
+          "lon",
+          "lat",
+          "wind_mps",
+          "along_mps",
+          "cross_mps",
+          "ground_speed_mps",
+          "modeled_duration_s"
+        ],
+        "title": "Segment"
+      },
+      "Validation": {
+        "properties": {
+          "resolution_change_percent": {
+            "type": "number",
+            "title": "Resolution Change Percent"
+          },
+          "boundary": {
+            "type": "boolean",
+            "title": "Boundary"
+          },
+          "solve_duration_s": {
+            "type": "number",
+            "title": "Solve Duration S"
+          }
+        },
+        "type": "object",
+        "required": [
+          "resolution_change_percent",
+          "boundary",
+          "solve_duration_s"
+        ],
+        "title": "Validation"
+      },
+      "WindSample": {
+        "properties": {
+          "lon": {
+            "type": "number",
+            "title": "Lon"
+          },
+          "lat": {
+            "type": "number",
+            "title": "Lat"
+          },
+          "u_mps": {
+            "type": "number",
+            "title": "U Mps"
+          },
+          "v_mps": {
+            "type": "number",
+            "title": "V Mps"
+          }
+        },
+        "type": "object",
+        "required": [
+          "lon",
+          "lat",
+          "u_mps",
+          "v_mps"
+        ],
+        "title": "WindSample"
+      },
+      "Winds": {
+        "properties": {
+          "units": {
+            "type": "string",
+            "const": "m/s",
+            "title": "Units"
+          },
+          "valid_time": {
+            "type": "string",
+            "title": "Valid Time"
+          },
+          "samples": {
+            "items": {
+              "$ref": "#/components/schemas/WindSample"
+            },
+            "type": "array",
+            "title": "Samples"
+          }
+        },
+        "type": "object",
+        "required": [
+          "units",
+          "valid_time",
+          "samples"
+        ],
+        "title": "Winds"
+      }
+    }
+  }
+}

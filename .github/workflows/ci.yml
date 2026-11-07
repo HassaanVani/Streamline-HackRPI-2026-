@@ -1,0 +1,32 @@
+name: Validate Streamline
+on: [push, pull_request]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: '0.10.0'
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: uv sync --frozen --project backend
+      - run: cd backend && uv run pytest -q
+      - run: cd backend && uv run python ../scripts/export_schema.py
+      - run: cd frontend && npm ci && npm run types && npm run build
+      - run: git diff --exit-code -- docs/openapi.json frontend/src/api.generated.ts
+      - run: cd frontend && npm audit --omit=dev --audit-level=high
+      - run: docker compose config --quiet
+      - run: docker build -t streamline:ci .
+      - run: |
+          docker run -d --name streamline-ci -p 8000:8000 streamline:ci
+          for attempt in $(seq 1 30); do
+            if curl --fail http://localhost:8000/api/v1/health; then break; fi
+            sleep 2
+          done
+          curl --fail http://localhost:8000/
+          curl --fail http://localhost:8000/examples.json

@@ -49,11 +49,16 @@ export default function FlightMap({scenario,showWinds,onToggleWinds,showAlternat
     fit.current=()=>{
       const s=current.current.scenario;if(!s)return;
       const coords=unwrap(s.routes.features[0].geometry.coordinates);
-      const bounds=new maplibregl.LngLatBounds(coords[0] as [number,number],coords[0] as [number,number]);
-      for(const p of coords)bounds.extend(p as [number,number]);
-      // fitBounds retains global padding; reset it before repeated resize fits.
+      // Fit unwrapped Mercator coordinates directly: this is stable across
+      // antimeridian crossings and sidebar/inspector-driven canvas resizes.
+      const merc=(lat:number)=>(1-Math.log(Math.tan(Math.PI/4+lat*Math.PI/360))/Math.PI)/2;
+      const xs=coords.map(p=>p[0]/360),ys=coords.map(p=>merc(p[1]));
+      const xmin=Math.min(...xs),xmax=Math.max(...xs),ymin=Math.min(...ys),ymax=Math.max(...ys);
+      const {width,height}=container.current!.getBoundingClientRect();
+      const zoom=Math.max(1,Math.min(6,Math.log2(Math.min(Math.max(80,width-130)/(512*Math.max(1e-6,xmax-xmin)),Math.max(80,height-240)/(512*Math.max(1e-6,ymax-ymin))))));
+      const cy=(ymin+ymax)/2-25/(512*2**zoom);
       m.setPadding({top:0,bottom:0,left:0,right:0});
-      m.fitBounds(bounds,{padding:{top:145,bottom:95,left:65,right:65},maxZoom:6,duration:0});
+      m.jumpTo({center:[(xmin+xmax)*180,Math.atan(Math.sinh(Math.PI*(1-2*cy)))*180/Math.PI],zoom,bearing:0,pitch:0});
     };
     m.on('move',()=>draw.current());m.on('resize',()=>{draw.current();fit.current();});
     m.on('style.load',()=>{

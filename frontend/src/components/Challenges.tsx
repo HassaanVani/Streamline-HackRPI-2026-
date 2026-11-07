@@ -50,7 +50,8 @@ export default function Challenges({
     [error, setError] = useState("");
   const [notebook, setNotebook] = useState<Notebook>(readNotebook);
   const request = useRef(0),
-    feedback = useRef<HTMLDivElement>(null);
+    feedback = useRef<HTMLDivElement>(null),
+    heading = useRef<HTMLHeadingElement>(null);
   const task = challenges[active],
     count = Object.keys(notebook).length;
   useEffect(() => {
@@ -66,6 +67,9 @@ export default function Challenges({
     },
     [],
   );
+  useEffect(() => {
+    heading.current?.focus();
+  }, []);
   useEffect(() => {
     if (result) feedback.current?.focus();
   }, [result]);
@@ -119,7 +123,9 @@ export default function Challenges({
       <div className="challenge-heading">
         <div>
           <span className="experiment-kicker">Wind challenges</span>
-          <h1>Three wind experiments.</h1>
+          <h1 ref={heading} tabIndex={-1}>
+            Three wind experiments.
+          </h1>
         </div>
         <span className="experiment-count">{count} / 3 explored</span>
       </div>

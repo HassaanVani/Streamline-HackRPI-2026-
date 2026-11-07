@@ -12,6 +12,7 @@ import {
   X,
 } from "lucide-react";
 import useExplorer from "./useExplorer";
+import { brandAssets, readTheme, persistTheme, type Theme } from "./brand";
 import AirportSearch from "./AirportSearch";
 import { comparisonCopy } from "./comparisonCopy";
 import Logo from "./components/Logo";
@@ -35,28 +36,31 @@ const warningText: Record<string, string> = {
 };
 
 export default function App() {
-  const [theme, setTheme] = useState<"clouds" | "atc">(() => {
+  const [theme, setTheme] = useState<Theme>(() => {
     try {
-      return localStorage.getItem("streamline-theme") === "atc"
-        ? "atc"
-        : "clouds";
+      return readTheme(localStorage);
     } catch {
       return "clouds";
     }
   });
   useEffect(() => {
     try {
-      localStorage.setItem("streamline-theme", theme);
+      persistTheme(localStorage, theme);
     } catch {
-      /* Use the selected theme for this session. */
+      /* Storage can be unavailable. */
     }
     document
       .querySelector('meta[name="theme-color"]')
       ?.setAttribute("content", theme === "clouds" ? "#dceef8" : "#080f13");
+    document
+      .querySelector<HTMLLinkElement>('link[rel="icon"]')
+      ?.setAttribute("href", brandAssets[theme]);
   }, [theme]);
   const x = useExplorer(),
     r = x.scenario;
-  const [paused, setPaused] = useState(() => matchMedia("(prefers-reduced-motion: reduce)").matches);
+  const [paused, setPaused] = useState(
+    () => matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
   const [playbackOpen, setPlaybackOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [contours, setContours] = useState(false);
@@ -143,7 +147,7 @@ export default function App() {
       </a>
       <header className="app-bar">
         <a className="brand" href="/" aria-label="Streamline home">
-          <Logo />
+          <Logo theme={theme} />
           <span>STREAMLINE</span>
         </a>
         <span className="app-description">Wind & flight atlas</span>
@@ -319,6 +323,18 @@ export default function App() {
                   )}
                 </button>
               </form>
+              <button
+                className="experiment-invitation"
+                disabled={!!x.loading || !r}
+                onClick={() => {
+                  setMode("challenge");
+                  setChallengeRevealed(false);
+                  setInspection(false);
+                  setPlaying(false);
+                }}
+              >
+                Predict the Atlantic crossing →
+              </button>
               {x.dirty && (
                 <p className="selection-note" role="status">
                   Selection changed. Calculate to update the displayed route.

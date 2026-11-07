@@ -1,7 +1,8 @@
-export default function Logo() {
+import { brandAssets, type Theme } from "../brand";
+export default function Logo({ theme }: { theme: Theme }) {
   return (
     <img
-      src="/streamline-mark.png"
+      src={brandAssets[theme]}
       width="40"
       height="40"
       alt=""

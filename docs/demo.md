@@ -19,7 +19,7 @@ Point to the actual forecast timestamp and pressure surface. “This is a saved 
 
 **0:20–1:05 — Ask for a prediction.**
 
-Open **Challenges → Turn the Atlantic around**. Ask: “New York to London, or London to New York—which direction do you think is quicker?” Select the judge's answer and test it.
+Use **Predict the Atlantic crossing →** below the journey controls to open the reversal experiment. Ask: “New York to London, or London to New York—which direction do you think is quicker?” Select the judge's answer and test it.
 
 “In this snapshot, the shortest-distance path takes about **6h 06m eastbound** and **7h 28m westbound**. That's an approximately **82-minute directional difference**. Reversing the journey reverses the wind component along it.”
 

@@ -74,6 +74,7 @@ export default function useExplorer() {
     setDestination(result.destination);
     setWindEnabled(result.wind_enabled);
     setSegment(0);
+    return result;
   }
   async function compare(a = origin, b = destination, wind = windEnabled) {
     if (!a || !b) return;
@@ -90,13 +91,12 @@ export default function useExplorer() {
           e.wind_enabled === wind,
       );
       if (saved) {
-        apply(
+        return apply(
           await getJSON<Scenario>(
             `/examples/${saved.scenario_id}.json`,
             abort.signal,
           ),
         );
-        return;
       }
       setLoading("Fetching winds and calculating routes");
       const response = await fetch(`${API}/api/v1/scenarios`, {
@@ -146,7 +146,7 @@ export default function useExplorer() {
         throw new Error(
           result.error?.message || "This journey could not be compared.",
         );
-      apply(result as Scenario);
+      return apply(result as Scenario);
     } catch (e) {
       if ((e as Error).name !== "AbortError")
         setError(

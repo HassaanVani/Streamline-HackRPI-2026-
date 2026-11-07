@@ -13,6 +13,7 @@ import {
 import useExplorer from "./useExplorer";
 import AirportSearch from "./AirportSearch";
 import Logo from "./components/Logo";
+import Challenges from "./components/Challenges";
 import Methodology, { utc } from "./components/Methodology";
 const FlightMap = lazy(() => import("./FlightMap"));
 type Kind = "great_circle" | "wind_optimized";
@@ -51,6 +52,8 @@ export default function App() {
     [speed, setSpeed] = useState(900),
     [playbackStarted, setPlaybackStarted] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
+  const [mode, setMode] = useState<"explore" | "challenge">("explore");
+  const [challengeRevealed, setChallengeRevealed] = useState(false);
   const [inspection, setInspection] = useState(false),
     [kind, setKind] = useState<Kind>("wind_optimized");
   const total = r
@@ -111,8 +114,8 @@ export default function App() {
   }
   return (
     <div className="workspace" data-theme={theme}>
-      <a className="skip-link" href="#route-controls">
-        Skip to route controls
+      <a className="skip-link" href="#workspace-mode">
+        Skip to explorer controls
       </a>
       <header className="app-bar">
         <a className="brand" href="/" aria-label="Streamline home">
@@ -164,244 +167,293 @@ export default function App() {
             motionPaused={paused}
           />
         </Suspense>
-        <aside
-          id="route-controls"
-          className={`route-panel ${optionsOpen ? "options-open" : ""}`}
-          aria-label="Route controls"
-        >
-          <div className="panel-heading">
-            <h1>Compare flight paths</h1>
-            <button
-              className="panel-options"
-              onClick={() => setOptionsOpen(!optionsOpen)}
-              aria-expanded={optionsOpen}
-            >
-              {optionsOpen ? "Close options" : "Options"}
-            </button>
-            <p>
-              Choose two airports. Calculate a route through the forecast winds.
-            </p>
-          </div>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              void x.compare();
-            }}
+        <div className="workspace-tools">
+          <div
+            className="workspace-mode"
+            id="workspace-mode"
+            tabIndex={-1}
+            role="group"
+            aria-label="Explorer mode"
           >
-            <AirportSearch
-              label="From"
-              value={x.origin}
-              onChange={x.setOrigin}
-              airports={x.airports}
-              disabled={!!x.loading}
-            />
             <button
-              className="reverse-button"
-              type="button"
-              disabled={!!x.loading}
+              aria-pressed={mode === "explore"}
               onClick={() => {
-                const origin = x.origin,
-                  destination = x.destination;
-                x.setOrigin(destination);
-                x.setDestination(origin);
-                void x.compare(destination, origin, x.windEnabled);
+                if (mode !== "explore" && x.loading) x.cancel();
+                setMode("explore");
               }}
-              aria-label="Reverse journey"
             >
-              <ArrowLeftRight size={16} />
-              <span>Reverse</span>
+              Free explore
             </button>
-            <AirportSearch
-              label="To"
-              value={x.destination}
-              onChange={x.setDestination}
-              airports={x.airports}
-              disabled={!!x.loading}
-            />
             <button
-              className="calculate-button"
-              type="submit"
-              disabled={
-                !!x.loading ||
-                !x.origin ||
-                !x.destination ||
-                x.origin.id === x.destination.id
-              }
-            >
-              {x.loading ? (
-                <>
-                  <LoaderCircle size={17} className="spin" />
-                  Calculating…
-                </>
-              ) : (
-                <>Calculate route</>
-              )}
-            </button>
-          </form>
-          {r && (
-            <div className="compact-source">
-              250 hPa · {utc(r.provenance.valid_time)}
-            </div>
-          )}
-          {x.loading && (
-            <div className="status-message" role="status">
-              <span>{x.loading}</span>
-              {r && <button onClick={x.cancel}>Cancel</button>}
-            </div>
-          )}
-          {x.error && (
-            <p className="error-message" role="alert">
-              {x.error}
-            </p>
-          )}
-          {x.airportError && (
-            <p className="error-message">
-              Airport search failed to load. Reload to try again.
-            </p>
-          )}
-          <div className="saved-routes">
-            <label htmlFor="saved-route">Saved comparisons</label>
-            <select
-              id="saved-route"
-              value={
-                x.examples.find(
-                  (e) =>
-                    e.origin_id === r?.origin.id &&
-                    e.destination_id === r?.destination.id &&
-                    e.wind_enabled,
-                )?.scenario_id || ""
-              }
-              disabled={!!x.loading || !x.airports.length}
-              onChange={(e) => void example(e.target.value)}
-            >
-              <option value="" disabled>
-                Select a route
-              </option>
-              {x.examples
-                .filter((e) => e.wind_enabled)
-                .map((e) => (
-                  <option key={e.scenario_id} value={e.scenario_id}>
-                    {e.label}
-                  </option>
-                ))}
-            </select>
-          </div>
-          <div className="layer-controls">
-            <div>
-              <span>
-                <Wind size={16} />
-                Include winds in calculation
-              </span>
-              <button
-                role="switch"
-                aria-label="Include winds in the model"
-                aria-checked={x.windEnabled}
-                disabled={!!x.loading || !r}
-                onClick={() =>
-                  void x.compare(r?.origin, r?.destination, !x.windEnabled)
+              aria-pressed={mode === "challenge"}
+              onClick={() => {
+                if (mode !== "challenge") {
+                  setMode("challenge");
+                  setChallengeRevealed(false);
+                  setInspection(false);
                 }
-              >
-                <i />
-              </button>
-            </div>
-            <label>
-              <input
-                type="checkbox"
-                checked={x.showWinds}
-                onChange={(e) => x.setShowWinds(e.target.checked)}
-              />
-              Wind vectors & contours
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={!paused}
-                onChange={(e) => setPaused(!e.target.checked)}
-              />
-              Animate wind vectors
-            </label>
-          </div>
-          {r && (
-            <div className="source-details">
-              <span>
-                {r.data_mode === "saved_forecast"
-                  ? "Saved forecast"
-                  : "Computed forecast"}{" "}
-                · 250 hPa
-              </span>
-              <strong>{utc(r.provenance.valid_time)}</strong>
-              <span>NOAA GFS via Open-Meteo</span>
-              <button onClick={() => x.setMethodology(true)}>
-                Assumptions & limitations
-              </button>
-            </div>
-          )}
-        </aside>
-        {r && (
-          <>
-            <section
-              className="playback-panel"
-              aria-label="Modeled journey playback"
+              }}
             >
-              <div className="playback-heading">
-                <h2>Journey playback</h2>
-                <span>Modeled, not a recorded flight</span>
-              </div>
-              <div className="playback-controls">
+              Wind challenges
+            </button>
+          </div>
+          {mode === "challenge" ? (
+            <Challenges
+              disabled={!!x.loading}
+              onReset={() => setChallengeRevealed(false)}
+              onReveal={() => setChallengeRevealed(true)}
+              onRun={async (origin, destination, wind) => {
+                const a = x.airports.find((a) => a.id === origin),
+                  b = x.airports.find((a) => a.id === destination);
+                if (a && b) return x.compare(a, b, wind);
+              }}
+            />
+          ) : (
+            <aside
+              id="route-controls"
+              className={`route-panel ${optionsOpen ? "options-open" : ""}`}
+              aria-label="Route controls"
+            >
+              <div className="panel-heading">
+                <h1>Compare flight paths</h1>
                 <button
-                  onClick={play}
+                  className="panel-options"
+                  onClick={() => setOptionsOpen(!optionsOpen)}
+                  aria-expanded={optionsOpen}
+                >
+                  {optionsOpen ? "Close options" : "Options"}
+                </button>
+                <p>
+                  Choose two airports. Calculate a route through the forecast
+                  winds.
+                </p>
+              </div>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void x.compare();
+                }}
+              >
+                <AirportSearch
+                  label="From"
+                  value={x.origin}
+                  onChange={x.setOrigin}
+                  airports={x.airports}
                   disabled={!!x.loading}
-                  aria-label={
-                    playing ? "Pause journey playback" : "Play journey playback"
+                />
+                <button
+                  className="reverse-button"
+                  type="button"
+                  disabled={!!x.loading}
+                  onClick={() => {
+                    const origin = x.origin,
+                      destination = x.destination;
+                    x.setOrigin(destination);
+                    x.setDestination(origin);
+                    void x.compare(destination, origin, x.windEnabled);
+                  }}
+                  aria-label="Reverse journey"
+                >
+                  <ArrowLeftRight size={16} />
+                  <span>Reverse</span>
+                </button>
+                <AirportSearch
+                  label="To"
+                  value={x.destination}
+                  onChange={x.setDestination}
+                  airports={x.airports}
+                  disabled={!!x.loading}
+                />
+                <button
+                  className="calculate-button"
+                  type="submit"
+                  disabled={
+                    !!x.loading ||
+                    !x.origin ||
+                    !x.destination ||
+                    x.origin.id === x.destination.id
                   }
                 >
-                  {playing ? <Pause size={17} /> : <Play size={17} />}
+                  {x.loading ? (
+                    <>
+                      <LoaderCircle size={17} className="spin" />
+                      Calculating…
+                    </>
+                  ) : (
+                    <>Calculate route</>
+                  )}
                 </button>
-                <button
-                  aria-label="Reset playback"
-                  onClick={() => {
-                    setPlaying(false);
-                    setElapsed(0);
-                    setPlaybackStarted(false);
-                  }}
+              </form>
+              {r && (
+                <div className="compact-source">
+                  250 hPa · {utc(r.provenance.valid_time)}
+                </div>
+              )}
+              {x.loading && (
+                <div className="status-message" role="status">
+                  <span>{x.loading}</span>
+                  {r && <button onClick={x.cancel}>Cancel</button>}
+                </div>
+              )}
+              {x.error && (
+                <p className="error-message" role="alert">
+                  {x.error}
+                </p>
+              )}
+              {x.airportError && (
+                <p className="error-message">
+                  Airport search failed to load. Reload to try again.
+                </p>
+              )}
+              <div className="saved-routes">
+                <label htmlFor="saved-route">Saved comparisons</label>
+                <select
+                  id="saved-route"
+                  value={
+                    x.examples.find(
+                      (e) =>
+                        e.origin_id === r?.origin.id &&
+                        e.destination_id === r?.destination.id &&
+                        e.wind_enabled,
+                    )?.scenario_id || ""
+                  }
+                  disabled={!!x.loading || !x.airports.length}
+                  onChange={(e) => void example(e.target.value)}
                 >
-                  <RotateCcw size={16} />
-                </button>
-                <div className="elapsed">
-                  <strong>{time(elapsed)}</strong>
-                  <span>elapsed / {time(total)}</span>
+                  <option value="" disabled>
+                    Select a route
+                  </option>
+                  {x.examples
+                    .filter((e) => e.wind_enabled)
+                    .map((e) => (
+                      <option key={e.scenario_id} value={e.scenario_id}>
+                        {e.label}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div className="layer-controls">
+                <div>
+                  <span>
+                    <Wind size={16} />
+                    Include winds in calculation
+                  </span>
+                  <button
+                    role="switch"
+                    aria-label="Include winds in the model"
+                    aria-checked={x.windEnabled}
+                    disabled={!!x.loading || !r}
+                    onClick={() =>
+                      void x.compare(r?.origin, r?.destination, !x.windEnabled)
+                    }
+                  >
+                    <i />
+                  </button>
                 </div>
                 <label>
-                  Speed
-                  <select
-                    aria-label="Playback speed"
-                    value={speed}
-                    onChange={(e) => setSpeed(Number(e.target.value))}
-                  >
-                    <option value={360}>360×</option>
-                    <option value={900}>900×</option>
-                    <option value={1800}>1800×</option>
-                  </select>
+                  <input
+                    type="checkbox"
+                    checked={x.showWinds}
+                    onChange={(e) => x.setShowWinds(e.target.checked)}
+                  />
+                  Wind vectors & contours
+                </label>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={!paused}
+                    onChange={(e) => setPaused(!e.target.checked)}
+                  />
+                  Animate wind vectors
                 </label>
               </div>
-              <input
-                className="timeline"
-                type="range"
-                aria-label="Modeled elapsed time"
-                min="0"
-                max={Math.ceil(total)}
-                value={elapsed}
-                onChange={(e) => {
-                  setElapsed(Number(e.target.value));
-                  setPlaybackStarted(true);
-                  setPlaying(false);
-                }}
-              />
-              <p>
-                Both paths run on the same clock. A dot stops when its modeled
-                journey ends.
-              </p>
-            </section>
+              {r && (
+                <div className="source-details">
+                  <span>
+                    {r.data_mode === "saved_forecast"
+                      ? "Saved forecast"
+                      : "Computed forecast"}{" "}
+                    · 250 hPa
+                  </span>
+                  <strong>{utc(r.provenance.valid_time)}</strong>
+                  <span>NOAA GFS via Open-Meteo</span>
+                  <button onClick={() => x.setMethodology(true)}>
+                    Assumptions & limitations
+                  </button>
+                </div>
+              )}
+            </aside>
+          )}
+        </div>
+        {r && (mode === "explore" || challengeRevealed) && (
+          <>
+            {mode === "explore" && (
+              <section
+                className="playback-panel"
+                aria-label="Modeled journey playback"
+              >
+                <div className="playback-heading">
+                  <h2>Journey playback</h2>
+                  <span>Modeled, not a recorded flight</span>
+                </div>
+                <div className="playback-controls">
+                  <button
+                    onClick={play}
+                    disabled={!!x.loading}
+                    aria-label={
+                      playing
+                        ? "Pause journey playback"
+                        : "Play journey playback"
+                    }
+                  >
+                    {playing ? <Pause size={17} /> : <Play size={17} />}
+                  </button>
+                  <button
+                    aria-label="Reset playback"
+                    onClick={() => {
+                      setPlaying(false);
+                      setElapsed(0);
+                      setPlaybackStarted(false);
+                    }}
+                  >
+                    <RotateCcw size={16} />
+                  </button>
+                  <div className="elapsed">
+                    <strong>{time(elapsed)}</strong>
+                    <span>elapsed / {time(total)}</span>
+                  </div>
+                  <label>
+                    Speed
+                    <select
+                      aria-label="Playback speed"
+                      value={speed}
+                      onChange={(e) => setSpeed(Number(e.target.value))}
+                    >
+                      <option value={360}>360×</option>
+                      <option value={900}>900×</option>
+                      <option value={1800}>1800×</option>
+                    </select>
+                  </label>
+                </div>
+                <input
+                  className="timeline"
+                  type="range"
+                  aria-label="Modeled elapsed time"
+                  min="0"
+                  max={Math.ceil(total)}
+                  value={elapsed}
+                  onChange={(e) => {
+                    setElapsed(Number(e.target.value));
+                    setPlaybackStarted(true);
+                    setPlaying(false);
+                  }}
+                />
+                <p>
+                  Both paths run on the same clock. A dot stops when its modeled
+                  journey ends.
+                </p>
+              </section>
+            )}
             {inspection && segment && (
               <section
                 className="inspection-panel"

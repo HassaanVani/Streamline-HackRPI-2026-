@@ -3562,3 +3562,338 @@ input[type="checkbox"] {
   background: #294d3a;
   color: #c9ebd5;
 }
+
+/* One working surface, with optional experiments rather than another page. */
+.workspace-tools {
+  position: absolute;
+  left: 18px;
+  top: 18px;
+  width: 302px;
+  z-index: 5;
+  max-height: calc(100% - 36px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.workspace-mode {
+  display: flex;
+  padding: 4px;
+  gap: 4px;
+  border: 1px solid #bed7e5;
+  border-radius: 8px;
+  background: #f7fcff;
+  flex-shrink: 0;
+}
+.workspace-mode button {
+  flex: 1;
+  min-height: 38px;
+  padding: 7px;
+  font-size: 12px;
+  border-radius: 5px;
+  color: #526e80;
+}
+.workspace-mode button[aria-pressed="true"] {
+  background: #254f66;
+  color: #fff;
+  font-weight: 600;
+}
+.workspace-tools .route-panel {
+  position: relative;
+  left: auto;
+  top: auto;
+  right: auto;
+  width: 100%;
+  max-height: none;
+  min-height: 0;
+  overflow-y: auto;
+  flex-shrink: 1;
+}
+.challenge-panel {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px;
+  border: 1px solid #bed7e5;
+  border-radius: 8px;
+  background: #fafdfff5;
+  box-shadow: 0 5px 24px #34576b12;
+}
+.challenge-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.experiment-kicker {
+  color: #50798c;
+  font-size: 10px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+.challenge-heading h1 {
+  font-size: 23px;
+  letter-spacing: -0.7px;
+  margin-top: 5px;
+}
+.experiment-count {
+  font:
+    10px "IBM Plex Mono",
+    monospace;
+  color: #50798c;
+  white-space: nowrap;
+}
+.challenge-intro {
+  font-size: 12px;
+  line-height: 1.6;
+  margin-top: 10px;
+  color: #526e80;
+}
+.experiment-steps {
+  margin: 18px 0;
+  display: grid;
+  gap: 3px;
+  border-block: 1px solid #d4e3eb;
+  padding: 9px 0;
+}
+.experiment-steps button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  padding: 8px 4px;
+  min-height: 36px;
+  font-size: 11px;
+  color: #587384;
+}
+.experiment-steps button > span:first-child {
+  font:
+    11px "IBM Plex Mono",
+    monospace;
+  width: 20px;
+  display: flex;
+  justify-content: center;
+}
+.experiment-steps button[aria-current] {
+  color: #096e89;
+  font-weight: 650;
+  border-left: 2px solid #1685ae;
+  background: #edf7fc;
+}
+.experiment-route {
+  font:
+    11px "IBM Plex Mono",
+    monospace;
+  color: #167b98;
+  margin-bottom: 10px;
+}
+.experiment-body h2 {
+  font-size: 19px;
+  line-height: 1.35;
+  letter-spacing: -0.3px;
+}
+.experiment-body p {
+  font-size: 12px;
+  color: #526e80;
+  line-height: 1.65;
+  margin-top: 10px;
+}
+.experiment-body fieldset {
+  border: 0;
+  padding: 0;
+  margin: 20px 0 14px;
+  display: grid;
+  gap: 7px;
+}
+.experiment-body legend {
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 9px;
+}
+.experiment-body fieldset label {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid #ccdde7;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.experiment-body fieldset label.chosen {
+  border-color: #1685ae;
+  background: #e6f3fb;
+  color: #175b78;
+}
+.experiment-body input {
+  accent-color: #167b98;
+  margin: 0;
+}
+.test-prediction {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+  background: #254f66;
+  color: #fff;
+  padding: 12px;
+  border-radius: 5px;
+}
+.test-prediction:hover:not(:disabled) {
+  background: #186d8a;
+}
+.experiment-feedback {
+  margin-top: 18px;
+}
+.experiment-feedback > strong {
+  font-size: 15px;
+  color: #096e89;
+}
+.experiment-feedback .correct-prediction {
+  font-weight: 650;
+  color: var(--ink);
+}
+.experiment-feedback div[role="note"] {
+  font-size: 12px;
+  line-height: 1.7;
+  padding: 12px 0;
+  margin: 12px 0;
+  border-block: 1px solid #d4e3eb;
+}
+.experiment-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid #d4e3eb;
+  margin-top: 18px;
+  padding-top: 10px;
+  font-size: 10px;
+  color: #526e80;
+  line-height: 1.6;
+}
+.experiment-footer button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  padding: 6px;
+}
+.experiment-caveat {
+  font-size: 10px;
+  line-height: 1.7;
+  color: #607987;
+  margin-top: 10px;
+}
+[data-theme="atc"] .workspace-mode,
+[data-theme="atc"] .challenge-panel {
+  background: #101e19;
+  border-color: #2b463b;
+}
+[data-theme="atc"] .workspace-mode button[aria-pressed="true"],
+[data-theme="atc"] .test-prediction {
+  background: #8acba4;
+  color: #091810;
+}
+[data-theme="atc"] .experiment-steps button[aria-current],
+[data-theme="atc"] .experiment-body fieldset label.chosen {
+  background: #193328;
+  color: #b7ebc9;
+  border-color: #8acba4;
+}
+[data-theme="atc"] .experiment-steps,
+[data-theme="atc"] .experiment-footer,
+[data-theme="atc"] .experiment-feedback div[role="note"],
+[data-theme="atc"] .experiment-body fieldset label {
+  border-color: #2b463b;
+}
+[data-theme="atc"] .experiment-route,
+[data-theme="atc"] .experiment-feedback > strong {
+  color: #dbbb79;
+}
+[data-theme="atc"] .challenge-intro,
+[data-theme="atc"] .experiment-body p,
+[data-theme="atc"] .experiment-footer,
+[data-theme="atc"] .experiment-caveat,
+[data-theme="atc"] .experiment-count,
+[data-theme="atc"] .experiment-kicker,
+[data-theme="atc"] .experiment-steps button,
+[data-theme="atc"] .workspace-mode button {
+  color: #a3bbae;
+}
+@media (min-width: 851px) and (max-width: 1150px) {
+  .workspace-tools {
+    width: 270px;
+    left: 12px;
+    top: 12px;
+  }
+}
+@media (max-width: 850px) {
+  .workspace-tools {
+    left: 10px;
+    right: 10px;
+    top: 10px;
+    width: auto;
+    max-height: calc(100% - 20px);
+    gap: 7px;
+  }
+  .workspace-mode {
+    width: fit-content;
+    padding: 3px;
+  }
+  .workspace-mode button {
+    font-size: 11px;
+    min-height: 32px;
+    padding: 5px 12px;
+  }
+  .workspace-tools .route-panel {
+    overflow: visible;
+    flex-shrink: 0;
+  }
+  .challenge-panel {
+    max-height: 55dvh;
+    padding: 15px;
+  }
+  .challenge-intro {
+    display: none;
+  }
+  .challenge-heading h1 {
+    font-size: 20px;
+  }
+  .experiment-steps {
+    grid-template-columns: repeat(3, 1fr);
+    margin: 12px 0;
+    gap: 5px;
+    padding: 5px 0;
+  }
+  .experiment-steps button {
+    font-size: 10px;
+    line-height: 1.35;
+    padding: 5px;
+    gap: 5px;
+  }
+  .experiment-steps button > span:first-child {
+    width: 16px;
+    flex-shrink: 0;
+  }
+  .experiment-body h2 {
+    font-size: 17px;
+  }
+  .experiment-body fieldset {
+    margin-top: 12px;
+  }
+  .experiment-body fieldset label {
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 850px) {
+  .challenge-panel.has-result {
+    max-height: 43dvh;
+  }
+  .challenge-panel.has-result .experiment-steps {
+    display: none;
+  }
+}

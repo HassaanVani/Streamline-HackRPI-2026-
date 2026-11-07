@@ -40,3 +40,9 @@ The map workspace now uses a dark radar palette, restrained green geography and 
 The default workspace uses pale sky-blue water, cloud-white land and panels, and teal alternatives. A keyboard-accessible Clouds / ATC switch changes both MapLibre layers and the controls without resetting the selected journey or playback. The preference persists locally. The real latitude/longitude grid remains subtle in both palettes.
 
 Verified both palettes in the browser, preference persistence after reload, and the 390 × 844 layout with no horizontal overflow. Four playback tests and the production build pass. Explicitly bundle the MapLibre worker URL so Vite does not resolve it relative to its dependency cache. Screenshots: `screenshots/clouds-theme-desktop.png` and `screenshots/clouds-theme-phone.png`.
+
+## Research-led wind challenges
+
+See `ux-research.md` for the source synthesis, product decisions and peer-testing script, and `../DESIGN.md` for the maintained design context. Added optional prediction experiments on the same map rather than another header page. Free exploration retains airport search and playback. Challenges reveal measured evidence and an explanation, count unique experiments only after evaluation, and retain a first-attempt notebook locally. Failure does not count, and reset is available.
+
+Browser QA completed all three experiments, correct and wrong predictions, keyboard Space/Enter activation, persisted progress after reload, replay without changing the first-attempt record, reset, and both themes. The 390 × 844 page has a 390px document width. Mobile result panels use a bounded scroll area to preserve space for the map and comparison. Seven frontend tests pass, including real-fixture scoring and invalid-result rejection. No peer-learning or engagement claim has been validated yet.

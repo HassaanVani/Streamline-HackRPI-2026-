@@ -56,7 +56,7 @@ export default function App() {
   }, [theme]);
   const x = useExplorer(),
     r = x.scenario;
-  const [paused, setPaused] = useState(true);
+  const [paused, setPaused] = useState(() => matchMedia("(prefers-reduced-motion: reduce)").matches);
   const [playbackOpen, setPlaybackOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [contours, setContours] = useState(false);
@@ -146,7 +146,7 @@ export default function App() {
           <Logo />
           <span>STREAMLINE</span>
         </a>
-        <span className="app-description">Wind-aware flight explorer</span>
+        <span className="app-description">Wind & flight atlas</span>
         <div className="bar-actions">
           {optionsOpen && (
             <button
@@ -401,7 +401,7 @@ export default function App() {
                     checked={x.showWinds}
                     onChange={(e) => x.setShowWinds(e.target.checked)}
                   />
-                  Wind arrows
+                  Wind flow
                 </label>
                 <label>
                   <input
@@ -417,7 +417,7 @@ export default function App() {
                     checked={!paused}
                     onChange={(e) => setPaused(!e.target.checked)}
                   />
-                  Animate wind vectors
+                  Animate wind flow
                 </label>
               </div>
               <div className="extra-tools">

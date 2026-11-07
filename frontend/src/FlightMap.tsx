@@ -5,6 +5,7 @@ maplibregl.setWorkerUrl(mapWorkerUrl);
 import { Minus, Plus, RotateCcw } from "lucide-react";
 import type { Scenario } from "./types";
 import { routePosition } from "./playback";
+import { buildWindFlow } from "./windFlow";
 
 function unwrap(coords: number[][]) {
   let last = coords[0][0];
@@ -132,6 +133,8 @@ export default function FlightMap({
     resize.observe(container.current);
     m.touchZoomRotate.disableRotation();
     m.on("error", () => setTileFailure(true));
+    let flowKey = "",
+      flowPaths: { x: number; y: number }[][] = [];
     draw.current = () => {
       const c = canvas.current,
         ctx = c?.getContext("2d");
@@ -150,50 +153,86 @@ export default function FlightMap({
       const state = current.current;
       if (!state.scenario || !state.showWinds) return;
       const center = m.getCenter().lng;
-      const drawn: { x: number; y: number }[] = [];
-      for (const [index, w] of state.scenario.winds.samples.entries()) {
-        const speed = Math.hypot(w.u_mps, w.v_mps);
-        if (speed < 0.05) continue;
-        let lon = w.lon;
-        while (lon - center > 180) lon -= 360;
-        while (lon - center < -180) lon += 360;
-        const p = m.project([lon, Math.max(-85, Math.min(85, w.lat))]);
-        if (p.x < 0 || p.y < 0 || p.x > bounds.width || p.y > bounds.height)
-          continue;
-        if (drawn.some((q) => (q.x - p.x) ** 2 + (q.y - p.y) ** 2 < 70 ** 2))
-          continue;
-        drawn.push(p);
-        const angle = Math.atan2(-w.v_mps, w.u_mps),
-          length = 11 + Math.min(26, speed * 0.45);
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate(angle);
-        ctx.strokeStyle = state.theme === "atc" ? "#46765f" : "#6a9ab5";
-        ctx.lineWidth = 1.1;
+      const cacheKey = [
+        state.scenario.scenario_id,
+        center,
+        m.getCenter().lat,
+        m.getZoom(),
+        bounds.width,
+        bounds.height,
+      ].join(":");
+      if (cacheKey !== flowKey) {
+        const projected = state.scenario.winds.samples.map((w) => {
+          let lon = w.lon;
+          while (lon - center > 180) lon -= 360;
+          while (lon - center < -180) lon += 360;
+          const lat = Math.max(-85, Math.min(85, w.lat)),
+            p = m.project([lon, lat]);
+          const next = m.project([
+            lon +
+              (w.u_mps * 60) /
+                (111320 * Math.max(0.087, Math.cos((lat * Math.PI) / 180))),
+            Math.max(-85, Math.min(85, lat + (w.v_mps * 60) / 111320)),
+          ]);
+          return {
+            x: p.x,
+            y: p.y,
+            dx: next.x - p.x,
+            dy: next.y - p.y,
+            speed: Math.hypot(w.u_mps, w.v_mps),
+          };
+        });
+        flowPaths = buildWindFlow(projected, bounds.width, bounds.height);
+        flowKey = cacheKey;
+      }
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      for (const [index, points] of flowPaths.entries()) {
+        ctx.strokeStyle =
+          state.theme === "atc"
+            ? "rgba(132,197,157,.22)"
+            : "rgba(56,126,161,.25)";
+        ctx.lineWidth = 0.9;
         ctx.beginPath();
-        ctx.moveTo(-length / 2, 0);
-        ctx.lineTo(length / 2, 0);
-        ctx.moveTo(length / 2 - 4, -3);
-        ctx.lineTo(length / 2, 0);
-        ctx.lineTo(length / 2 - 4, 3);
+        points.forEach((p, i) =>
+          i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y),
+        );
         ctx.stroke();
         if (!state.motionPaused) {
-          const travel = 48 + Math.min(28, speed * 0.5);
-          const phase =
-            ((performance.now() * (0.008 + speed * 0.0002) + index * 13) %
-              travel) -
-            travel / 2;
+          const head = Math.floor(
+            (performance.now() * 0.006 + index * 7) % points.length,
+          );
           ctx.strokeStyle =
             state.theme === "atc"
-              ? "rgba(160,231,187,.85)"
-              : "rgba(37,119,160,.8)";
-          ctx.lineWidth = 2;
+              ? "rgba(167,227,186,.65)"
+              : "rgba(40,116,155,.6)";
+          ctx.lineWidth = 1.5;
           ctx.beginPath();
-          ctx.moveTo(phase - 6, 0);
-          ctx.lineTo(phase, 0);
+          for (let j = Math.max(0, head - 6); j <= head; j++) {
+            const p = points[j];
+            if (j === Math.max(0, head - 6)) ctx.moveTo(p.x, p.y);
+            else ctx.lineTo(p.x, p.y);
+          }
+          ctx.stroke();
+        } else {
+          const i = Math.floor(points.length * 0.65),
+            p = points[i],
+            q = points[Math.max(0, i - 1)],
+            angle = Math.atan2(p.y - q.y, p.x - q.x);
+          ctx.strokeStyle = state.theme === "atc" ? "#78a98c" : "#6e9fb8";
+          ctx.lineWidth = 0.8;
+          ctx.beginPath();
+          ctx.moveTo(
+            p.x - 4 * Math.cos(angle - 0.5),
+            p.y - 4 * Math.sin(angle - 0.5),
+          );
+          ctx.lineTo(p.x, p.y);
+          ctx.lineTo(
+            p.x - 4 * Math.cos(angle + 0.5),
+            p.y - 4 * Math.sin(angle + 0.5),
+          );
           ctx.stroke();
         }
-        ctx.restore();
       }
     };
     fit.current = () => {

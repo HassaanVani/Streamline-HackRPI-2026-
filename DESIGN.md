@@ -31,4 +31,4 @@ Never equate an unstable result with equality. Keep inconclusive, equal, small a
 
 ## Quiet default
 
-Start with static, spatially thinned wind arrows; contours and playback are off. The default result compares cruise time only. Options reveals saved examples, model wind settings, layer settings and playback. More detail reveals distance, the relative fuel index and the keyboard inspector. Keep scientific qualifications and uncertainty warnings visible. Do not add another always-visible panel for a secondary feature.
+Start with a continuous, gently animated wind field; reduced-motion preferences keep it still. Contours and journey playback are off. The default result compares cruise time only. Options reveals saved examples, model wind settings, layer settings and playback. More detail reveals distance, the relative fuel index and the keyboard inspector. Keep scientific qualifications and uncertainty warnings visible. Do not add another always-visible panel for a secondary feature.

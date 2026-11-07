@@ -93,11 +93,16 @@ export default function Methodology({
             </dl>
             <h3>Map and playback</h3>
             <p>
-              Wind-speed contours are interpolated from sampled magnitudes at 20
-              m/s intervals. They add no weather resolution and do not affect
-              route calculations. Playback positions use each displayed
-              segment’s modeled duration on one shared clock; motion is
-              accelerated and is not a flight recording.
+              The wind streamlines interpolate projected east/north components
+              within triangles of the sampled field. They stop at the sampled
+              boundary; curved lines add no weather resolution. Moving
+              highlights illustrate direction, not the speed or trajectory of
+              air parcels. Reduced-motion mode keeps the flow still. Wind-speed
+              contours are interpolated from sampled magnitudes at 20 m/s
+              intervals. They add no weather resolution and do not affect route
+              calculations. Playback positions use each displayed segment’s
+              modeled duration on one shared clock; motion is accelerated and is
+              not a flight recording.
             </p>
             <h3>Route calculation</h3>
             <p>

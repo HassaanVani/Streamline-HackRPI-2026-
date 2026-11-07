@@ -51,3 +51,9 @@ The backend was restarted and an uncached KBOS–LFPG job completed as `computed
 ## Reduced sensory load
 
 Default wind motion and contours are disabled; drawn arrows are spatially thinned for legibility without changing the input grid or route evaluation. Default playback is closed and the comparison shows time only. Options and More detail were browser-tested to reveal their controls, including playback and contours. Changed airport selections retain an explicit update notice even while the detailed result heading is hidden. Nine frontend tests and the production build pass.
+
+## Atmospheric flow and identity
+
+The isolated wind arrows have been replaced with cached, curved display streamlines. Screen-projected wind components are interpolated only within triangles of the sampled corridor, with midpoint integration for the curves. No vector extrapolation or additional weather resolution is claimed. Animation is illustrative, and reduced-motion/static controls remain available. Two new tests cover constant-component interpolation, coverage boundaries, flow direction and zero wind; all 11 frontend tests and the production build pass.
+
+A new generated transparent soaring S mark replaces the earlier line glyph in both the header and favicon. The tab title is simply Streamline. The generated source is copied to `frontend/public/streamline-mark.png`, not referenced from a private generation directory.

@@ -56,9 +56,10 @@ export default function App() {
   }, [theme]);
   const x = useExplorer(),
     r = x.scenario;
-  const [paused, setPaused] = useState(
-    () => matchMedia("(prefers-reduced-motion: reduce)").matches,
-  );
+  const [paused, setPaused] = useState(true);
+  const [playbackOpen, setPlaybackOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [contours, setContours] = useState(false);
   const [playing, setPlaying] = useState(false),
     [elapsed, setElapsed] = useState(0),
     [speed, setSpeed] = useState(900),
@@ -106,6 +107,7 @@ export default function App() {
     if (elapsed >= total) setPlaying(false);
   }, [elapsed, total]);
   function inspect(index: number, route: Kind) {
+    setDetailsOpen(true);
     setKind(route);
     x.setSegment(index);
     setInspection(true);
@@ -130,6 +132,8 @@ export default function App() {
     <div
       className="workspace"
       data-theme={theme}
+      data-details={detailsOpen}
+      data-options={optionsOpen}
       data-present={presenting}
       data-mode={mode}
       data-result={challengeRevealed}
@@ -144,14 +148,16 @@ export default function App() {
         </a>
         <span className="app-description">Wind-aware flight explorer</span>
         <div className="bar-actions">
-          <button
-            className="presentation-toggle"
-            aria-pressed={presenting}
-            onClick={() => setPresenting(!presenting)}
-          >
-            <Presentation size={17} />
-            {presenting ? "Exit presentation" : "Present"}
-          </button>
+          {optionsOpen && (
+            <button
+              className="presentation-toggle"
+              aria-pressed={presenting}
+              onClick={() => setPresenting(!presenting)}
+            >
+              <Presentation size={17} />
+              {presenting ? "Exit presentation" : "Present"}
+            </button>
+          )}
           <button
             className="theme-switch"
             role="switch"
@@ -166,13 +172,15 @@ export default function App() {
             <Info size={16} />
             Model & data
           </button>
-          <button
-            onClick={x.download}
-            disabled={!r}
-            aria-label="Download scenario"
-          >
-            <ArrowDownToLine size={17} />
-          </button>
+          {optionsOpen && (
+            <button
+              onClick={x.download}
+              disabled={!r}
+              aria-label="Download scenario"
+            >
+              <ArrowDownToLine size={17} />
+            </button>
+          )}
         </div>
       </header>
       <main className="map-workspace">
@@ -186,6 +194,7 @@ export default function App() {
           <FlightMap
             theme={theme}
             scenario={r}
+            showContours={contours}
             showWinds={x.showWinds}
             showAlternative={true}
             segment={inspection ? x.segment : -1}
@@ -244,7 +253,7 @@ export default function App() {
             >
               <div className="panel-heading">
                 <span className="section-number">AIRPORT SEARCH</span>
-                <h1>Where to?</h1>
+                <h1>Your journey</h1>
                 <button
                   className="panel-options"
                   onClick={() => setOptionsOpen(!optionsOpen)}
@@ -310,9 +319,19 @@ export default function App() {
                   )}
                 </button>
               </form>
+              {x.dirty && (
+                <p className="selection-note" role="status">
+                  Selection changed. Calculate to update the displayed route.
+                </p>
+              )}
               {r && (
                 <div className="compact-source">
-                  250 hPa · {utc(r.provenance.valid_time)}
+                  {r.data_mode === "saved_forecast"
+                    ? "Saved forecast"
+                    : "Computed forecast"}{" "}
+                  · 250 hPa
+                  <br />
+                  {utc(r.provenance.valid_time)}
                 </div>
               )}
               {x.loading && (
@@ -382,7 +401,15 @@ export default function App() {
                     checked={x.showWinds}
                     onChange={(e) => x.setShowWinds(e.target.checked)}
                   />
-                  Wind vectors & contours
+                  Wind arrows
+                </label>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={contours}
+                    onChange={(e) => setContours(e.target.checked)}
+                  />
+                  Wind speed contours
                 </label>
                 <label>
                   <input
@@ -392,6 +419,17 @@ export default function App() {
                   />
                   Animate wind vectors
                 </label>
+              </div>
+              <div className="extra-tools">
+                <button
+                  aria-expanded={playbackOpen}
+                  onClick={() => {
+                    setPlaybackOpen(!playbackOpen);
+                    setPlaying(false);
+                  }}
+                >
+                  {playbackOpen ? "Hide playback" : "Open journey playback"}
+                </button>
               </div>
               {r && (
                 <div className="source-details">
@@ -413,7 +451,7 @@ export default function App() {
         </div>
         {r && (mode === "explore" || challengeRevealed) && (
           <>
-            {mode === "explore" && (
+            {mode === "explore" && playbackOpen && (
               <section
                 className="playback-panel"
                 aria-label="Modeled journey playback"
@@ -584,13 +622,24 @@ export default function App() {
                 <strong>{resultCopy?.title}</strong>
                 <span>{resultCopy?.detail}</span>
                 <button
+                  aria-expanded={detailsOpen}
                   onClick={() => {
-                    setInspection(!inspection);
-                    x.setSegment(0);
+                    setDetailsOpen(!detailsOpen);
+                    if (detailsOpen) setInspection(false);
                   }}
                 >
-                  Inspect route
+                  {detailsOpen ? "Less detail" : "More detail"}
                 </button>
+                {detailsOpen && (
+                  <button
+                    onClick={() => {
+                      setInspection(!inspection);
+                      x.setSegment(0);
+                    }}
+                  >
+                    Inspect route
+                  </button>
+                )}
               </div>
               <p className="model-note">
                 Hypothetical cruise only · 230 m/s airspeed · operational

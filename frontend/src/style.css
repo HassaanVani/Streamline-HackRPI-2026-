@@ -1647,3 +1647,86 @@ button:hover:not(:disabled) {
     grid-row: 2;
   }
 }
+/* Quiet by default: one task, one comparison, optional instruments. */
+.panel-heading .section-number,
+.panel-heading p {
+  display: none;
+}
+.panel-heading h1 {
+  font-size: 26px;
+  letter-spacing: -0.5px;
+  margin-bottom: 28px;
+}
+.panel-options {
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 4px 0 4px 8px;
+  min-height: 32px;
+  font-size: 12px;
+  color: var(--accent);
+  text-decoration: underline;
+}
+.airport-entry input {
+  font-size: 34px;
+}
+.route-panel:not(.options-open)
+  :is(.saved-routes, .layer-controls, .source-details, .extra-tools) {
+  display: none;
+}
+.extra-tools {
+  margin-top: 20px;
+}
+.extra-tools button {
+  min-height: 40px;
+  padding: 8px 0;
+  color: var(--accent);
+  text-decoration: underline;
+  font-size: 13px;
+}
+.compact-source {
+  display: block;
+  margin-top: 22px;
+  font: 11px var(--mono);
+  color: var(--muted);
+}
+.workspace[data-details="false"] .comparison-dock {
+  grid-template-columns: minmax(0, 1fr) 240px;
+  min-height: 180px;
+}
+.workspace[data-details="false"] .dock-title {
+  display: none;
+}
+.workspace[data-details="false"] .metric-header,
+.workspace[data-details="false"] .metric-row {
+  grid-template-columns: 1.2fr 1fr;
+}
+.workspace[data-details="false"] .metric-header > span:nth-child(n + 3),
+.workspace[data-details="false"] .metric-row > span:nth-child(n + 3),
+.workspace[data-details="false"] .fuel-note {
+  display: none;
+}
+.chart-title h2 {
+  font-size: 26px;
+}
+.chart-caption {
+  display: none;
+}
+@media (max-width: 850px) {
+  .workspace[data-details="false"] .comparison-dock {
+    display: block;
+    min-height: 0;
+  }
+  .panel-heading h1 {
+    font-size: 25px;
+    margin-bottom: 20px;
+  }
+}
+
+.selection-note {
+  font-size: 12px;
+  color: var(--alert);
+  margin-top: 14px;
+  line-height: 1.5;
+}

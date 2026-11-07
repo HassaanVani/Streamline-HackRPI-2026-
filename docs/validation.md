@@ -47,3 +47,7 @@ Independent read-only subagent audit and recheck are summarized in `presentation
 The complete bundled judging sequence was exercised with keyboard prediction, westbound route inspection, still-air evaluation and methodology. Four actual screenshots and a standalone keyboard-navigable fallback are in `presentation/`; the fallback was opened and its image loading/navigation checked. It is a screenshot fallback, not a recording. Nine frontend and 25 backend tests pass. New tests distinguish unstable, equal, small and subminute results.
 
 The backend was restarted and an uncached KBOS–LFPG job completed as `computed_forecast`, stable, with a 1.0658% modeled difference. Timestamp, scenario identity and payload hash are in `presentation/readiness.json`. Local readiness does not establish public Vultr deployment. The live weather request remains outside the three-minute core script.
+
+## Reduced sensory load
+
+Default wind motion and contours are disabled; drawn arrows are spatially thinned for legibility without changing the input grid or route evaluation. Default playback is closed and the comparison shows time only. Options and More detail were browser-tested to reveal their controls, including playback and contours. Changed airport selections retain an explicit update notice even while the detailed result heading is hidden. Nine frontend tests and the production build pass.

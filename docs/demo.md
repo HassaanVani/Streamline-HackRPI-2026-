@@ -1,6 +1,6 @@
 # Three-minute judging demonstration
 
-Use the tested local app at http://127.0.0.1:5173/. Click **Present** on a desktop screen to enlarge evidence. This changes only the view, never the model. Keep the light theme unless the room makes the dark palette easier to read. Use browser zoom 100% and a 1440px-wide or larger window for the presentation layout.
+Use the tested local app at http://127.0.0.1:5173/. Open **Options**, then click **Present** on a desktop screen to enlarge evidence. This changes only the view, never the model. Keep the light theme unless the room makes the dark palette easier to read. Use browser zoom 100% and a 1440px-wide or larger window for the presentation layout.
 
 ## Set up before approaching a judge
 
@@ -31,11 +31,11 @@ Return to **Explore**. The current journey is LHR → JFK. Point to the solid re
 
 “Now compare two paths in the **same direction**. The shortest-distance baseline is about **7h 28m**, and the wind-aware path is about **7h 23m**. Here, the extra distance trades against wind for about **five minutes** of modeled improvement.”
 
-Use **Inspect route**, then move the segment slider about one-third of the way along, to show along-route wind and ground speed. “A shared crosswind-corrected evaluator scores every displayed segment. Directed Dijkstra searches a corridor graph, and a finer grid checks stability.” Close the inspector. Skip playback unless ahead of time; it is available for questions.
+Open **More detail → Inspect route**, then move the segment slider about one-third of the way along, to show along-route wind and ground speed. “A shared crosswind-corrected evaluator scores every displayed segment. Directed Dijkstra searches a corridor graph, and a finer grid checks stability.” Close the inspector. Skip playback unless ahead of time; it is available for questions.
 
 **1:45–2:15 — Remove the cause.**
 
-Turn **Include winds in calculation** off. Both paths show approximately **6h 41m**.
+Open **Options** and turn **Include winds in calculation** off. Both paths show approximately **6h 41m**.
 
 “In still air at constant airspeed, distance governs time. The solver can select the shortest-distance path itself. This is a counterfactual, not another weather forecast.”
 

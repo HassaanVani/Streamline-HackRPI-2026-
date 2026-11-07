@@ -28,3 +28,7 @@ Do not restore a marketing hero, feature-card grid, fake operations status, simu
 Scientific evidence must compete successfully with the invitation heading. Normal durations use 16px monospace; desktop Present mode uses 22px durations, 30px result headings and 14px qualifications, and omits the secondary fuel index. The Present control is only offered above 1200px; the rehearsed setup is 1440px wide. Desktop chart and results share grid rows so wrapped text cannot cover chart controls.
 
 Never equate an unstable result with equality. Keep inconclusive, equal, small and reportable results distinct. The 82-minute Atlantic direction comparison and the roughly five-minute westbound route improvement answer different questions. See `docs/demo.md` for the judging narrative.
+
+## Quiet default
+
+Start with static, spatially thinned wind arrows; contours and playback are off. The default result compares cruise time only. Options reveals saved examples, model wind settings, layer settings and playback. More detail reveals distance, the relative fuel index and the keyboard inspector. Keep scientific qualifications and uncertainty warnings visible. Do not add another always-visible panel for a secondary feature.

@@ -20,6 +20,7 @@ export default function FlightMap({
   theme,
   scenario,
   showWinds,
+  showContours,
   showAlternative,
   segment,
   motionPaused,
@@ -30,6 +31,7 @@ export default function FlightMap({
   theme: "clouds" | "atc";
   scenario: Scenario | null;
   showWinds: boolean;
+  showContours: boolean;
   showAlternative: boolean;
   segment: number;
   motionPaused: boolean;
@@ -148,6 +150,7 @@ export default function FlightMap({
       const state = current.current;
       if (!state.scenario || !state.showWinds) return;
       const center = m.getCenter().lng;
+      const drawn: { x: number; y: number }[] = [];
       for (const [index, w] of state.scenario.winds.samples.entries()) {
         const speed = Math.hypot(w.u_mps, w.v_mps);
         if (speed < 0.05) continue;
@@ -157,6 +160,9 @@ export default function FlightMap({
         const p = m.project([lon, Math.max(-85, Math.min(85, w.lat))]);
         if (p.x < 0 || p.y < 0 || p.x > bounds.width || p.y > bounds.height)
           continue;
+        if (drawn.some((q) => (q.x - p.x) ** 2 + (q.y - p.y) ** 2 < 70 ** 2))
+          continue;
+        drawn.push(p);
         const angle = Math.atan2(-w.v_mps, w.u_mps),
           length = 11 + Math.min(26, speed * 0.45);
         ctx.save();
@@ -314,7 +320,7 @@ export default function FlightMap({
         paint: {
           "line-color": "#2b4d3d",
           "line-width": 0.6,
-          "line-opacity": 0.35,
+          "line-opacity": 0.1,
         },
       });
       m.addSource("contours", {
@@ -536,7 +542,7 @@ export default function FlightMap({
     m.setLayoutProperty(
       "contours",
       "visibility",
-      showWinds ? "visible" : "none",
+      showWinds && showContours ? "visible" : "none",
     );
     for (const id of ["alternative", "alternative-glow"])
       m.setLayoutProperty(
@@ -562,7 +568,15 @@ export default function FlightMap({
         : [],
     });
     draw.current();
-  }, [scenario, showWinds, showAlternative, segment, inspectKind, ready]);
+  }, [
+    scenario,
+    showWinds,
+    showContours,
+    showAlternative,
+    segment,
+    inspectKind,
+    ready,
+  ]);
   useEffect(() => {
     if (!ready) return;
     let frame = 0;
@@ -636,10 +650,12 @@ export default function FlightMap({
           <i className="route-line alternative" />
           Wind-aware route
         </span>
-        <span className="contour-key">
-          <i />
-          Wind speed contours, 20 m/s intervals
-        </span>
+        {showContours && showWinds && (
+          <span className="contour-key">
+            <i />
+            Wind speed contours, 20 m/s intervals
+          </span>
+        )}
       </div>
       <div className="chart-caption">
         {scenario && !scenario.wind_enabled

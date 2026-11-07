@@ -113,14 +113,19 @@ export default function App() {
     setPlaying(true);
   }
   return (
-    <div className="workspace" data-theme={theme}>
+    <div
+      className="workspace"
+      data-theme={theme}
+      data-mode={mode}
+      data-result={challengeRevealed}
+    >
       <a className="skip-link" href="#workspace-mode">
         Skip to explorer controls
       </a>
       <header className="app-bar">
         <a className="brand" href="/" aria-label="Streamline home">
           <Logo />
-          <span>streamline</span>
+          <span>STREAMLINE</span>
         </a>
         <span className="app-description">Wind-aware flight explorer</span>
         <div className="bar-actions">
@@ -182,7 +187,7 @@ export default function App() {
                 setMode("explore");
               }}
             >
-              Free explore
+              Explore
             </button>
             <button
               aria-pressed={mode === "challenge"}
@@ -194,7 +199,7 @@ export default function App() {
                 }
               }}
             >
-              Wind challenges
+              Challenges
             </button>
           </div>
           {mode === "challenge" ? (
@@ -215,7 +220,8 @@ export default function App() {
               aria-label="Route controls"
             >
               <div className="panel-heading">
-                <h1>Compare flight paths</h1>
+                <span className="section-number">AIRPORT SEARCH</span>
+                <h1>Where to?</h1>
                 <button
                   className="panel-options"
                   onClick={() => setOptionsOpen(!optionsOpen)}
@@ -223,10 +229,7 @@ export default function App() {
                 >
                   {optionsOpen ? "Close options" : "Options"}
                 </button>
-                <p>
-                  Choose two airports. Calculate a route through the forecast
-                  winds.
-                </p>
+                <p>Pick your airports. See how the wind changes the journey.</p>
               </div>
               <form
                 onSubmit={(e) => {

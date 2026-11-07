@@ -35,3 +35,7 @@ Verified real playback advancement, shared-clock seeking to 2h 26m, and a pointe
 A Boston–Paris request was submitted through the browser using airport search, not the saved-example selector. It entered the queue, disabled the calculation inputs while working, and returned new geometry marked Computed forecast with approximately 6h 00m baseline time and 5h 57m alternative time (1.1% modeled improvement). Independent rounding of durations and their difference can differ by one minute; the difference is labeled About.
 
 The compact Options panel was used to turn off model winds. JFK–LHR recalculated to 6h 41m on both paths and correctly reported no meaningful difference. This is distinct from hiding the vector and contour layers.
+
+## Chart-desk visual overhaul
+
+Seven frontend tests pass and production compilation succeeds. Browser QA checked airport search with keyboard selection, changed-selection identity, zero-wind recomputation, saved CDG–FRA, seeking, segment inspection, methodology, challenge prediction by Space/Enter, palette switching and the 390 × 844 layout. Computed styles on the challenge panel, results, mode controls and theme switch confirm zero radius, no shadow and no backdrop blur. The phone page has a 390px document width. The map now observes its real chart region when it resizes. Screenshots use the `chart-desk-` prefix. This remains implementation QA; peer comprehension testing is still pending.

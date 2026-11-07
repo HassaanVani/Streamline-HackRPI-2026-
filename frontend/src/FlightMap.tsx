@@ -126,6 +126,8 @@ export default function FlightMap({
       return;
     }
     map.current = m;
+    const resize = new ResizeObserver(() => m.resize());
+    resize.observe(container.current);
     m.touchZoomRotate.disableRotation();
     m.on("error", () => setTileFailure(true));
     draw.current = () => {
@@ -211,20 +213,18 @@ export default function FlightMap({
           6,
           Math.log2(
             Math.min(
-              Math.max(100, width - (width > 850 ? 440 : 100)) /
-                (512 * Math.max(1e-6, xmax - xmin)),
-              Math.max(100, height - (width <= 850 ? 450 : 260)) /
-                (512 * Math.max(1e-6, ymax - ymin)),
+              Math.max(100, width - 100) / (512 * Math.max(1e-6, xmax - xmin)),
+              Math.max(100, height - 190) / (512 * Math.max(1e-6, ymax - ymin)),
             ),
           ),
         ),
       );
       const cy = (ymin + ymax) / 2 - 10 / (512 * 2 ** zoom);
       m.setPadding({
-        top: width <= 850 ? 150 : 0,
-        bottom: width <= 850 ? 280 : 0,
-        left: width > 850 ? 320 : 0,
-        right: 0,
+        top: 100,
+        bottom: 35,
+        left: 40,
+        right: 40,
       });
       m.jumpTo({
         center: [
@@ -410,6 +410,7 @@ export default function FlightMap({
     });
     return () => {
       markers.current.forEach((marker) => marker.remove());
+      resize.disconnect();
       m.remove();
       map.current = null;
     };
@@ -419,7 +420,7 @@ export default function FlightMap({
     if (!m || !ready) return;
     const dark = theme === "atc";
     const alt = dark ? "#dbbb79" : "#087f96",
-      base = dark ? "#83aaa3" : "#6d8194";
+      base = dark ? "#83aaa3" : "#6d7d86";
     const paints: [
       string,
       (
@@ -431,10 +432,10 @@ export default function FlightMap({
       ),
       string,
     ][] = [
-      ["background", "background-color", dark ? "#080f13" : "#dceef8"],
-      ["land", "fill-color", dark ? "#0d1b1a" : "#f3f8fa"],
-      ["borders", "line-color", dark ? "#29453b" : "#a2bfd0"],
-      ["graticule", "line-color", dark ? "#2b4d3d" : "#b3d3e5"],
+      ["background", "background-color", dark ? "#080f13" : "#d8ecf7"],
+      ["land", "fill-color", dark ? "#0d1b1a" : "#f7f8ed"],
+      ["borders", "line-color", dark ? "#29453b" : "#83b2c8"],
+      ["graticule", "line-color", dark ? "#2b4d3d" : "#9dc4da"],
       ["contours", "line-color", dark ? "#477956" : "#7eb6cf"],
       ["baseline", "line-color", base],
       ["alternative", "line-color", alt],
@@ -614,6 +615,18 @@ export default function FlightMap({
           <RotateCcw size={17} />
         </button>
       </div>
+      <div className="chart-title">
+        <span>
+          {scenario
+            ? `${scenario.provenance.valid_time.replace("T", " ").slice(0, 16)} UTC · 250 hPa`
+            : "250 hPa / FORECAST WIND FIELD"}
+        </span>
+        <h2>
+          {scenario
+            ? `${scenario.origin.iata || scenario.origin.id} → ${scenario.destination.iata || scenario.destination.id}`
+            : "Wind & route chart"}
+        </h2>
+      </div>
       <div className="chart-key">
         <span>
           <i className="route-line reference" />
@@ -631,7 +644,7 @@ export default function FlightMap({
       <div className="chart-caption">
         {scenario && !scenario.wind_enabled
           ? "Zero-wind counterfactual"
-          : `${motionPaused ? "Static" : "Animated"} wind vectors · frozen forecast`}{" "}
+          : `${motionPaused ? "Static" : "Animated"} wind vectors · ${scenario?.data_mode === "saved_forecast" ? "saved" : "computed"} forecast`}{" "}
         · click a route to inspect
       </div>
       {tileFailure && (

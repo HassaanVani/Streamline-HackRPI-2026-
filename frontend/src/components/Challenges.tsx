@@ -119,13 +119,13 @@ export default function Challenges({
       <div className="challenge-heading">
         <div>
           <span className="experiment-kicker">Wind challenges</span>
-          <h1>Read the wind.</h1>
+          <h1>Three wind experiments.</h1>
         </div>
         <span className="experiment-count">{count} / 3 explored</span>
       </div>
       {!result && (
         <p className="challenge-intro">
-          Make a prediction. Test the forecast. Find out why.
+          Choose an experiment, then predict its result.
         </p>
       )}
       <nav className="experiment-steps" aria-label="Choose an experiment">

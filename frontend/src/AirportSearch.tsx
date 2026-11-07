@@ -99,9 +99,7 @@ export default function AirportSearch({
           ? query.length < 2
             ? "Search by city, name, or code"
             : "Pick an airport below"
-          : value?.municipality ||
-            value?.name ||
-            "Find your corner of the world"}
+          : value?.municipality || value?.name || "Search worldwide"}
       </span>
       {open && (
         <div

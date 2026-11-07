@@ -1,39 +1,12 @@
-# Three minute judging demo
+# Map workspace judging demo
 
-## 0:00 to 0:25
+Open Streamline directly to the map. Both the shortest-distance path and the wind-aware alternative are visible, with their modeled times and distances. Explain that both are hypothetical cruise paths, not observed flights.
 
-“Everyone has watched a flight cross a map. But the air around that flight is moving too. Streamline makes that invisible part of the journey visible.”
+1. Play the journey. Both dots advance on the same modeled clock using the solver's segment durations. Pause and scrub the timeline to compare positions. Explain the selected time acceleration.
+2. Click the wind-aware path. Read the wind pushing along it, the crosswind and the modeled ground speed. Change the inspected segment with the slider; the selected point moves on the map.
+3. Reverse the route and calculate. Explain why the same geographic wind field behaves differently in the opposite direction.
+4. Turn off winds in the calculation and compare the still-air result. This is separate from hiding the wind visualization.
+5. Search two other airports and calculate a new route. Show the real queued/running state, followed by the new geometry and measurements. Use a saved comparison if the weather service is unavailable; keep its source label visible.
+6. Open Model & data. Show the forecast time, 250 hPa pressure surface, illustrative 230 m/s airspeed, resolution check and excluded operational constraints. The fuel index is proportional to modeled time, not a validated absolute fuel estimate.
 
-Open the saved JFK–LHR example. Point out the airport pair, actual wind valid time and 250 hPa label. Explain that the reference is a modeled shortest-distance path, not an observed flight.
-
-## 0:25 to 1:00
-
-Point to the arrows. “These arrows show the direction the air is moving. The aircraft's speed through air is different from its speed over the ground.” Hide and restore the arrow layer. This is a visual toggle; the separate Model winds switch changes the physics.
-
-Toggle Model winds off and on. Compare the displayed cruise time. Use the computed result; never announce a fixed percentage from memory.
-
-## 1:00 to 1:45
-
-Reveal the wind-based alternative. “We search a directed graph, account for crosswind, and evaluate both paths under the same assumptions.” Show the time, distance and relative fuel index. The frozen JFK–LHR field gives only a small improvement; that is an honest result, not a failed demo.
-
-Reverse the journey. The same geographic wind field is evaluated in the opposite direction. Explain the changed ground speed rather than implying airlines missed an obvious saving.
-
-## 1:45 to 2:15
-
-Open the saved CDG–FRA example. “Sometimes the shortest path holds up.” If time permits, select a worldwide airport pair and run the cloud computation. Keep the saved examples as the reliable demo path.
-
-## 2:15 to 3:00
-
-Open Assumptions & sources. Show the data timestamp, airspeed assumption, grid check and exclusions. “This isn't flight planning. Airlines account for airspace, traffic, performance and weather hazards that this educational model does not know.”
-
-Download the scenario manifest. Explain that the weather payload hashes and versioned inputs make the comparison reproducible. Describe Vultr hosting only after the public deployment is verified; before that, say the deployment package targets Vultr.
-
-Close: “Our contribution is letting anyone inspect the forces behind a flight and understand what a simplified what-if can—and cannot—tell them.”
-
-## Submission preparation
-
-Target Best In The Clouds and, after a verified Vultr deployment, opt into Best Use of Vultr. Submit by November 8, 2026 at 9 AM Eastern, refine before the 11 AM stop, and present to at least six judges. Record a backup screen capture of this flow, retain screenshots, and verify the published event instructions before submission. Devpost submission and the live presentation remain human deliverables.
-
-## Five-peer comprehension check
-
-Ask five people to explore briefly without coaching. Record each person's answer to: Which path is hypothetical? What does the wind switch do? Name one real-world constraint the model excludes. Note confusion and fix labels before adding features. Record real results in the validation report; do not invent peer responses.
+For the event submission, target Best In The Clouds and, after verified Vultr deployment, Best Use of Vultr. Submit by November 8, 2026 at 9 AM Eastern; finish edits before 11 AM. Record a backup walkthrough and conduct the five-peer comprehension check with real people. Do not claim those human tasks were automated.

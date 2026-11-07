@@ -40,7 +40,7 @@ export default function Methodology({
       aria-labelledby="science-title"
     >
       <div className="science-top">
-        <span className="mono">STREAMLINE / FIELD NOTES</span>
+        <span className="mono">Model & data</span>
         <button
           className="icon-button"
           onClick={onClose}
@@ -50,12 +50,7 @@ export default function Methodology({
         </button>
       </div>
       <div className="science-body">
-        <span className="section-kicker">03 / THE SCIENCE</span>
-        <h2 id="science-title">
-          A little wonder.
-          <br />
-          <em>All the workings.</em>
-        </h2>
+        <h2 id="science-title">How this comparison works</h2>
         <p className="science-lead">
           We ask a simple what-if: how would moving air change the time along a
           flight path?
@@ -96,7 +91,15 @@ export default function Methodology({
                 </dd>
               </div>
             </dl>
-            <h3>The same rules for both routes.</h3>
+            <h3>Map and playback</h3>
+            <p>
+              Wind-speed contours are interpolated from sampled magnitudes at 20
+              m/s intervals. They add no weather resolution and do not affect
+              route calculations. Playback positions use each displayed
+              segment’s modeled duration on one shared clock; motion is
+              accelerated and is not a flight recording.
+            </p>
+            <h3>Route calculation</h3>
             <p>
               We sample a frozen wind field at 12 × 12 locations, interpolate
               east/north vectors, account for crosswind, and sum time along each
@@ -104,7 +107,7 @@ export default function Methodology({
               alternative is the shortest modeled time found on this grid, not a
               global optimum.
             </p>
-            <h3>A relative fuel index, honestly labeled.</h3>
+            <h3>Relative fuel index</h3>
             <p>
               The shortest-distance baseline is 100. With constant fuel flow,
               this index is proportional to time; it is not an independent fuel
@@ -127,7 +130,7 @@ export default function Methodology({
               not verified avoidable emissions or evidence of airline
               inefficiency.
             </p>
-            <h3>Follow the evidence.</h3>
+            <h3>Data sources</h3>
             <div className="source-links">
               <a
                 href="https://open-meteo.com/en/docs/gfs-api"

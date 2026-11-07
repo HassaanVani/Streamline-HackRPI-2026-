@@ -1,704 +1,525 @@
+import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import {
-  ArrowDown,
-  ArrowDownToLine,
   ArrowLeftRight,
-  ArrowRight,
-  ArrowUpRight,
-  Check,
-  ChevronDown,
-  CloudSun,
-  Globe2,
+  ArrowDownToLine,
   Info,
   LoaderCircle,
   Pause,
   Play,
-  Send,
+  RotateCcw,
   Wind,
+  X,
 } from "lucide-react";
 import useExplorer from "./useExplorer";
 import AirportSearch from "./AirportSearch";
-import SkyScene, { CloudBank, PaperPlane } from "./components/SkyScene";
+import Logo from "./components/Logo";
 import Methodology, { utc } from "./components/Methodology";
-import { lazy, Suspense, useState } from "react";
-
 const FlightMap = lazy(() => import("./FlightMap"));
-
-function duration(seconds: number) {
-  const m = Math.round(seconds / 60);
-  return (
-    <>
-      {Math.floor(m / 60)}
-      <small>h</small> {String(m % 60).padStart(2, "0")}
-      <small>m</small>
-    </>
-  );
+type Kind = "great_circle" | "wind_optimized";
+function time(s: number) {
+  const m = Math.round(s / 60);
+  return `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, "0")}m`;
 }
-function minutes(seconds: number) {
-  const value = Math.round(Math.abs(seconds) / 60);
-  return `${value} ${value === 1 ? "minute" : "minutes"}`;
+function city(s: string) {
+  return s.split(" (")[0];
 }
-function city(name: string | undefined) {
-  return name?.split(" (")[0] || "";
-}
-const warnings: Record<string, string> = {
+const warningText: Record<string, string> = {
   DOMAIN_BOUNDARY:
-    "The path reaches the edge of our weather region. A wider search could change this result.",
-  RESOLUTION_SENSITIVE:
-    "This comparison changes by more than 1% on a finer grid. Treat the difference with caution.",
+    "Search reached the edge of the weather region. The result may change with wider coverage.",
+  RESOLUTION_SENSITIVE: "The result changes by more than 1% on a finer grid.",
   MAP_PROJECTION_LIMIT:
-    "This polar route extends beyond the map’s 85° display limit. The calculation uses the full path.",
+    "Polar geometry extends beyond the map’s 85° display limit.",
 };
 
 export default function App() {
-  const x = useExplorer();
-  const [motionPaused, setMotionPaused] = useState(
-    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  const x = useExplorer(),
+    r = x.scenario;
+  const [paused, setPaused] = useState(
+    () => matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
-  const [inspection, setInspection] = useState(false);
-  const result = x.scenario;
-  const outcome = result?.comparison;
-  async function openExample(id: string) {
+  const [playing, setPlaying] = useState(false),
+    [elapsed, setElapsed] = useState(0),
+    [speed, setSpeed] = useState(900),
+    [playbackStarted, setPlaybackStarted] = useState(false);
+  const [optionsOpen, setOptionsOpen] = useState(false);
+  const [inspection, setInspection] = useState(false),
+    [kind, setKind] = useState<Kind>("wind_optimized");
+  const total = r
+    ? Math.max(
+        r.metrics.great_circle.modeled_duration_s,
+        r.metrics.wind_optimized.modeled_duration_s,
+      )
+    : 1;
+  const selected = r?.metrics[kind].segment_metrics;
+  const segment = selected?.[Math.min(x.segment, selected.length - 1)];
+  const identity = r?.scenario_id;
+  useEffect(() => {
+    setPlaying(false);
+    setElapsed(0);
+    setPlaybackStarted(false);
+    setInspection(false);
+  }, [identity]);
+  useEffect(() => {
+    if (!playing) return;
+    let frame = 0,
+      previous = performance.now(),
+      lastUpdate = previous;
+    const tick = (now: number) => {
+      if (now - lastUpdate >= 75) {
+        const dt = (now - previous) / 1000;
+        previous = now;
+        lastUpdate = now;
+        setElapsed((value) => Math.min(total, value + dt * speed));
+      }
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [playing, speed, total]);
+  useEffect(() => {
+    if (elapsed >= total) setPlaying(false);
+  }, [elapsed, total]);
+  function inspect(index: number, route: Kind) {
+    setKind(route);
+    x.setSegment(index);
+    setInspection(true);
+  }
+  async function example(id: string) {
     const e = x.examples.find((e) => e.scenario_id === id);
     if (!e) return;
     const a = x.airports.find((a) => a.id === e.origin_id),
       b = x.airports.find((a) => a.id === e.destination_id);
-    if (a && b) {
-      x.setOrigin(a);
-      x.setDestination(b);
-      await x.compare(a, b, true, false);
+    if (a && b) await x.compare(a, b, true);
+  }
+  function play() {
+    if (playing) {
+      setPlaying(false);
+      return;
     }
+    if (elapsed >= total) setElapsed(0);
+    setPlaybackStarted(true);
+    setPlaying(true);
   }
   return (
-    <div id="top" className={`sky-world ${motionPaused ? "motion-paused" : ""}`}>
-      <a href="#explore" className="skip-link">
-        Skip to flight explorer
+    <div className="workspace">
+      <a className="skip-link" href="#route-controls">
+        Skip to route controls
       </a>
-      <header className="sky-nav">
-        <a className="wordmark" href="#top" aria-label="Streamline home">
-          <Send size={27} strokeWidth={1.5} />
-          <span>
-            STREAMLINE<span className="wordmark-star">✦</span>
-          </span>
+      <header className="app-bar">
+        <a className="brand" href="/" aria-label="Streamline home">
+          <Logo />
+          <span>streamline</span>
         </a>
-        <nav aria-label="Main navigation">
-          <a href="#explore">
-            THE JOURNEY <ArrowDown size={12} />
-          </a>
+        <span className="app-description">Wind-aware flight explorer</span>
+        <div className="bar-actions">
           <button onClick={() => x.setMethodology(true)}>
-            THE SCIENCE <ArrowUpRight size={13} />
+            <Info size={16} />
+            Model & data
           </button>
-        </nav>
-        <div className="nav-right">
           <button
-            className="motion-control"
-            onClick={() => setMotionPaused(!motionPaused)}
-            aria-label={motionPaused ? "Resume animation" : "Pause animation"}
+            onClick={x.download}
+            disabled={!r}
+            aria-label="Download scenario"
           >
-            {motionPaused ? <Play size={14} /> : <Pause size={14} />}
-            <span>{motionPaused ? "MOTION OFF" : "MOTION ON"}</span>
+            <ArrowDownToLine size={17} />
           </button>
-          <a
-            className="event-stamp"
-            href="https://hackrpi.com"
-            target="_blank"
-            rel="noreferrer"
-          >
-            BUILT IN THE CLOUDS{" "}
-            <span>
-              HACKRPI ’26 <ArrowUpRight size={12} />
-            </span>
-          </a>
         </div>
       </header>
-      <main>
-        <section className="sky-hero" aria-labelledby="hero-title">
-          <div className="hero-content">
-            <div className="section-kicker">
-              <span className="tiny-sun" />
-              AN EXPLORER FOR THE AIR-CURIOUS
+      <main className="map-workspace">
+        <Suspense
+          fallback={
+            <div className="map-loading" role="status">
+              Loading map…
             </div>
-            <h1 id="hero-title">
-              WHY FLY
-              <br />
-              <span>THIS WAY?</span>
-              <svg viewBox="0 0 290 18" aria-hidden="true">
-                <path d="M3 12Q140-4 286 7M12 17Q153 5 271 12" />
-              </svg>
-            </h1>
-            <p>
-              The sky isn’t still. Follow the winds behind a flight, then
-              explore a different way across.
-            </p>
-            <a href="#explore" className="hero-cta">
-              LET’S FIND OUT <ArrowDown size={19} />
-            </a>
-            <span className="hero-side-note">
-              A real wind snapshot.
-              <br />A carefully labeled what-if.
-            </span>
-          </div>
-          <SkyScene />
-          <div className="hero-bottom mono">
-            <span>NO PILOT’S LICENSE REQUIRED.</span>
-            <span>
-              JUST A LITTLE CURIOSITY. <span className="spark-symbol">✦</span>
-            </span>
-          </div>
-        </section>
-        <section
-          className="journey-section"
-          id="explore"
-          aria-labelledby="journey-title"
+          }
         >
-          <div className="explore-heading">
-            <div>
-              <span className="section-kicker">01 / CHOOSE YOUR JOURNEY</span>
-              <h2 id="journey-title">
-                Where does your
-                <br />
-                <em>curiosity take you?</em>
-              </h2>
-            </div>
+          <FlightMap
+            scenario={r}
+            showWinds={x.showWinds}
+            showAlternative={true}
+            segment={inspection ? x.segment : -1}
+            inspectKind={kind}
+            onInspect={inspect}
+            elapsed={playbackStarted ? elapsed : null}
+            motionPaused={paused}
+          />
+        </Suspense>
+        <aside
+          id="route-controls"
+          className={`route-panel ${optionsOpen ? "options-open" : ""}`}
+          aria-label="Route controls"
+        >
+          <div className="panel-heading">
+            <h1>Compare flight paths</h1>
+            <button
+              className="panel-options"
+              onClick={() => setOptionsOpen(!optionsOpen)}
+              aria-expanded={optionsOpen}
+            >
+              {optionsOpen ? "Close options" : "Options"}
+            </button>
             <p>
-              Start over the Atlantic, or pick two airports anywhere in the
-              world. We’ll meet you up there.
+              Choose two airports. Calculate a route through the forecast winds.
             </p>
           </div>
-          <div className="explorer-stage">
-            <form
-              className="route-composer"
-              onSubmit={(e) => {
-                e.preventDefault();
-                void x.compare();
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              void x.compare();
+            }}
+          >
+            <AirportSearch
+              label="From"
+              value={x.origin}
+              onChange={x.setOrigin}
+              airports={x.airports}
+              disabled={!!x.loading}
+            />
+            <button
+              className="reverse-button"
+              type="button"
+              disabled={!!x.loading}
+              onClick={() => {
+                const origin = x.origin,
+                  destination = x.destination;
+                x.setOrigin(destination);
+                x.setDestination(origin);
+                void x.compare(destination, origin, x.windEnabled);
               }}
+              aria-label="Reverse journey"
             >
-              <AirportSearch
-                label="From"
-                value={x.origin}
-                onChange={x.setOrigin}
-                airports={x.airports}
-                disabled={!!x.loading}
-              />
-              <button
-                className="swap-airports"
-                type="button"
-                aria-label="Reverse journey"
-                disabled={!!x.loading}
-                onClick={() => {
-                  const a = x.origin;
-                  x.setOrigin(x.destination);
-                  x.setDestination(a);
-                  void x.compare(
-                    x.destination,
-                    a,
-                    x.windEnabled,
-                    x.showAlternative,
-                  );
-                }}
-              >
-                <ArrowLeftRight size={20} />
-              </button>
-              <AirportSearch
-                label="To"
-                value={x.destination}
-                onChange={x.setDestination}
-                airports={x.airports}
-                disabled={!!x.loading}
-              />
-              <div className="composer-action">
-                <span className="mono">
-                  <Globe2 size={12} />
-                  THE WORLD IS OPEN
-                </span>
-                <button
-                  type="submit"
-                  className="takeoff-button"
-                  disabled={
-                    !!x.loading ||
-                    !x.origin ||
-                    !x.destination ||
-                    x.origin.id === x.destination.id
-                  }
-                >
-                  {x.loading ? (
-                    <LoaderCircle size={20} className="spin" />
-                  ) : (
-                    <Send size={19} />
-                  )}
-                  <span>
-                    {x.loading ? "READING THE SKY…" : "FOLLOW THE WIND"}
-                  </span>
-                  <ArrowUpRight size={18} />
-                </button>
-              </div>
-            </form>
-            <div className="example-strip">
-              <span className="mono">OR BORROW A LITTLE INSPIRATION</span>
-              {x.featured.map((e, i) => (
-                <button
-                  key={e.scenario_id}
-                  disabled={!!x.loading || !x.airports.length}
-                  onClick={() => void openExample(e.scenario_id)}
-                  className={
-                    result?.origin.id === e.origin_id &&
-                    result.destination.id === e.destination_id
-                      ? "active"
-                      : ""
-                  }
-                >
-                  <span>0{i + 1}</span>
-                  {i === 0 ? "THE ATLANTIC CROSSING" : "THE SHORT HOP"}
-                  <b>{e.label}</b>
-                  <ArrowUpRight size={13} />
-                </button>
-              ))}
-            </div>
-            {x.airportError && (
-              <p className="notice notice-warning">
-                Airport search couldn’t load. Reload to restore the worldwide
-                airport list.
-              </p>
-            )}
-            {x.loading && (
-              <div className="notice" role="status">
-                <LoaderCircle size={18} className="spin" />
-                <span>{x.loading}</span>
-                {result && <button onClick={x.cancel}>Cancel</button>}
-              </div>
-            )}
-            {x.error && (
-              <div className="notice notice-warning" role="alert">
-                <Info size={18} />
-                <span>{x.error}</span>
-                <button
-                  onClick={() =>
-                    void x.compare(
-                      result?.origin,
-                      result?.destination,
-                      result?.wind_enabled,
-                    )
-                  }
-                >
-                  Reopen displayed journey
-                </button>
-              </div>
-            )}
-            <div className="map-intro">
-              <span className="section-kicker">02 / MEET THE MOVING AIR</span>
-              <span className="mono">
-                {result
-                  ? `${city(result.origin.municipality)} → ${city(result.destination.municipality)}`
-                  : "OPENING THE SKY"}
-              </span>
-            </div>
-            <Suspense
-              fallback={
-                <div className="map-loading" role="status">
-                  <Wind size={25} />
-                  <span>Opening your window onto the sky…</span>
-                </div>
+              <ArrowLeftRight size={16} />
+              <span>Reverse</span>
+            </button>
+            <AirportSearch
+              label="To"
+              value={x.destination}
+              onChange={x.setDestination}
+              airports={x.airports}
+              disabled={!!x.loading}
+            />
+            <button
+              className="calculate-button"
+              type="submit"
+              disabled={
+                !!x.loading ||
+                !x.origin ||
+                !x.destination ||
+                x.origin.id === x.destination.id
               }
             >
-              <FlightMap
-                scenario={result}
-                showWinds={x.showWinds}
-                onToggleWinds={() => x.setShowWinds(!x.showWinds)}
-                showAlternative={x.showAlternative}
-                segment={x.segment}
-                motionPaused={motionPaused}
-              />
-            </Suspense>
-            <div className="weather-caption">
-              <span>
-                <span className="data-dot" />
-                {result?.data_mode === "saved_forecast"
-                  ? "SAVED FORECAST EXAMPLE"
-                  : "FORECAST COMPARISON"}
-                <b>NOT A LIVE FLIGHT</b>
-              </span>
-              <span>
-                {result
-                  ? utc(result.provenance.valid_time)
-                  : "Loading timestamp"}{" "}
-                · NOAA GFS / Open-Meteo
-              </span>
+              {x.loading ? (
+                <>
+                  <LoaderCircle size={17} className="spin" />
+                  Calculating…
+                </>
+              ) : (
+                <>Calculate route</>
+              )}
+            </button>
+          </form>
+          {r && (
+            <div className="compact-source">
+              250 hPa · {utc(r.provenance.valid_time)}
             </div>
+          )}
+          {x.loading && (
+            <div className="status-message" role="status">
+              <span>{x.loading}</span>
+              {r && <button onClick={x.cancel}>Cancel</button>}
+            </div>
+          )}
+          {x.error && (
+            <p className="error-message" role="alert">
+              {x.error}
+            </p>
+          )}
+          {x.airportError && (
+            <p className="error-message">
+              Airport search failed to load. Reload to try again.
+            </p>
+          )}
+          <div className="saved-routes">
+            <label htmlFor="saved-route">Saved comparisons</label>
+            <select
+              id="saved-route"
+              value={
+                x.examples.find(
+                  (e) =>
+                    e.origin_id === r?.origin.id &&
+                    e.destination_id === r?.destination.id &&
+                    e.wind_enabled,
+                )?.scenario_id || ""
+              }
+              disabled={!!x.loading || !x.airports.length}
+              onChange={(e) => void example(e.target.value)}
+            >
+              <option value="" disabled>
+                Select a route
+              </option>
+              {x.examples
+                .filter((e) => e.wind_enabled)
+                .map((e) => (
+                  <option key={e.scenario_id} value={e.scenario_id}>
+                    {e.label}
+                  </option>
+                ))}
+            </select>
           </div>
-        </section>
-        <section
-          className="results-section"
-          id="comparison"
-          aria-labelledby="comparison-title"
-        >
-          <div className="results-heading">
+          <div className="layer-controls">
             <div>
-              <span className="section-kicker">03 / EXPLORE THE WHAT-IF</span>
-              <h2 id="comparison-title">
-                {x.showAlternative ? (
-                  <>
-                    A different path.
-                    <br />
-                    <em>What actually changes?</em>
-                  </>
-                ) : (
-                  <>
-                    The shortest line
-                    <br />
-                    <em>is only the beginning.</em>
-                  </>
-                )}
-              </h2>
-            </div>
-            <div className="wind-experiment">
-              <div>
-                <Wind size={22} />
-                <span>
-                  <strong>Winds in the model</strong>
-                  <small>
-                    Turn them off to compare both paths with still air.
-                  </small>
-                </span>
-              </div>
+              <span>
+                <Wind size={16} />
+                Include winds in calculation
+              </span>
               <button
                 role="switch"
                 aria-label="Include winds in the model"
                 aria-checked={x.windEnabled}
-                disabled={!!x.loading || !result}
+                disabled={!!x.loading || !r}
                 onClick={() =>
-                  void x.compare(
-                    result?.origin,
-                    result?.destination,
-                    !x.windEnabled,
-                    x.showAlternative,
-                  )
+                  void x.compare(r?.origin, r?.destination, !x.windEnabled)
                 }
               >
-                <span />
-                {x.windEnabled ? "ON" : "OFF"}
+                <i />
               </button>
             </div>
+            <label>
+              <input
+                type="checkbox"
+                checked={x.showWinds}
+                onChange={(e) => x.setShowWinds(e.target.checked)}
+              />
+              Wind vectors & contours
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={!paused}
+                onChange={(e) => setPaused(!e.target.checked)}
+              />
+              Animate wind vectors
+            </label>
           </div>
-          {x.dirty && (
-            <div className="notice notice-warning">
-              <Info size={18} />
-              Your airport selection changed. Follow the wind to update this
-              comparison.
+          {r && (
+            <div className="source-details">
+              <span>
+                {r.data_mode === "saved_forecast"
+                  ? "Saved forecast"
+                  : "Computed forecast"}{" "}
+                · 250 hPa
+              </span>
+              <strong>{utc(r.provenance.valid_time)}</strong>
+              <span>NOAA GFS via Open-Meteo</span>
+              <button onClick={() => x.setMethodology(true)}>
+                Assumptions & limitations
+              </button>
             </div>
           )}
-          {result && x.base && x.alt ? (
-            <>
-              <div className="boarding-pass">
-                <div className="pass-spine">
-                  <Send size={19} />
-                  <span>HYPOTHETICAL CRUISE COMPARISON</span>
-                  <span>SL / 026</span>
+        </aside>
+        {r && (
+          <>
+            <section
+              className="playback-panel"
+              aria-label="Modeled journey playback"
+            >
+              <div className="playback-heading">
+                <h2>Journey playback</h2>
+                <span>Modeled, not a recorded flight</span>
+              </div>
+              <div className="playback-controls">
+                <button
+                  onClick={play}
+                  disabled={!!x.loading}
+                  aria-label={
+                    playing ? "Pause journey playback" : "Play journey playback"
+                  }
+                >
+                  {playing ? <Pause size={17} /> : <Play size={17} />}
+                </button>
+                <button
+                  aria-label="Reset playback"
+                  onClick={() => {
+                    setPlaying(false);
+                    setElapsed(0);
+                    setPlaybackStarted(false);
+                  }}
+                >
+                  <RotateCcw size={16} />
+                </button>
+                <div className="elapsed">
+                  <strong>{time(elapsed)}</strong>
+                  <span>elapsed / {time(total)}</span>
                 </div>
-                <div className="pass-main">
-                  <div className="pass-itinerary">
-                    <div>
-                      <small>DEPARTURE</small>
-                      <strong>{result.origin.iata || result.origin.id}</strong>
-                      <span>
-                        {city(result.origin.municipality) || result.origin.name}
-                      </span>
-                    </div>
-                    <div className="pass-connector">
-                      <span />
-                      <Send size={21} />
-                      <span />
-                    </div>
-                    <div>
-                      <small>DESTINATION</small>
-                      <strong>
-                        {result.destination.iata || result.destination.id}
-                      </strong>
-                      <span>
-                        {city(result.destination.municipality) ||
-                          result.destination.name}
-                      </span>
-                    </div>
-                    <div className="pass-condition">
-                      <CloudSun size={26} />
-                      <span>
-                        {x.windEnabled ? "WITH THE WIND" : "STILL-AIR WHAT-IF"}
-                        <small>250 hPa · 230 m/s airspeed</small>
-                      </span>
-                    </div>
+                <label>
+                  Speed
+                  <select
+                    aria-label="Playback speed"
+                    value={speed}
+                    onChange={(e) => setSpeed(Number(e.target.value))}
+                  >
+                    <option value={360}>360×</option>
+                    <option value={900}>900×</option>
+                    <option value={1800}>1800×</option>
+                  </select>
+                </label>
+              </div>
+              <input
+                className="timeline"
+                type="range"
+                aria-label="Modeled elapsed time"
+                min="0"
+                max={Math.ceil(total)}
+                value={elapsed}
+                onChange={(e) => {
+                  setElapsed(Number(e.target.value));
+                  setPlaybackStarted(true);
+                  setPlaying(false);
+                }}
+              />
+              <p>
+                Both paths run on the same clock. A dot stops when its modeled
+                journey ends.
+              </p>
+            </section>
+            {inspection && segment && (
+              <section
+                className="inspection-panel"
+                aria-label="Route segment details"
+              >
+                <div className="inspection-heading">
+                  <h2>At this point</h2>
+                  <button
+                    aria-label="Close segment inspector"
+                    onClick={() => setInspection(false)}
+                  >
+                    <X size={17} />
+                  </button>
+                </div>
+                <label>
+                  Inspect route
+                  <select
+                    value={kind}
+                    onChange={(e) => {
+                      setKind(e.target.value as Kind);
+                      x.setSegment(0);
+                    }}
+                  >
+                    <option value="wind_optimized">Wind-aware route</option>
+                    <option value="great_circle">Shortest distance</option>
+                  </select>
+                </label>
+                <input
+                  type="range"
+                  aria-label="Route segment"
+                  min="0"
+                  max={(selected?.length || 1) - 1}
+                  value={Math.min(x.segment, (selected?.length || 1) - 1)}
+                  onChange={(e) => x.setSegment(Number(e.target.value))}
+                />
+                <div className="segment-readings">
+                  <div>
+                    <span>Along-route wind</span>
+                    <strong>{segment.along_mps.toFixed(1)} m/s</strong>
                   </div>
-                  <div className="route-comparison">
-                    <div className="comparison-labels">
-                      <span>THE PATH</span>
-                      <span>MODELED CRUISE TIME</span>
-                      <span>DISTANCE</span>
-                      <span>
-                        RELATIVE FUEL INDEX{" "}
-                        <button
-                          onClick={() => x.setMethodology(true)}
-                          aria-label="Explain relative fuel index"
-                        >
-                          <Info size={13} />
-                        </button>
-                      </span>
-                    </div>
-                    <div className="comparison-route baseline">
-                      <div>
-                        <i className="route-line reference" />
-                        <strong>Shortest distance</strong>
-                        <small>The great-circle baseline</small>
-                      </div>
-                      <div className="large-metric">
-                        {duration(x.base.modeled_duration_s)}
-                      </div>
-                      <div>
-                        {Math.round(x.base.distance_m / 1000).toLocaleString()}{" "}
-                        <small>km</small>
-                      </div>
-                      <div>
-                        100 <small>baseline</small>
-                      </div>
-                    </div>
-                    {x.showAlternative ? (
-                      <div className="comparison-route optimized">
-                        <div>
-                          <i className="route-line alternative" />
-                          <strong>Wind-based alternative</strong>
-                          <small>
-                            Shortest modeled time found on this grid
-                          </small>
-                        </div>
-                        <div className="large-metric">
-                          {duration(x.alt.modeled_duration_s)}
-                        </div>
-                        <div>
-                          {Math.round(x.alt.distance_m / 1000).toLocaleString()}{" "}
-                          <small>km</small>
-                        </div>
-                        <div>
-                          {x.alt.fuel_index.toFixed(1)}{" "}
-                          <small>relative index</small>
-                        </div>
-                      </div>
-                    ) : (
-                      <button
-                        className="reveal-route"
-                        disabled={!!x.loading}
-                        onClick={() => {
-                          x.setShowAlternative(true);
-                          x.setSegment(0);
-                        }}
-                      >
-                        <Wind size={25} />
-                        <span>
-                          Could the moving air suggest another way?
-                          <small>Reveal the wind-based comparison.</small>
-                        </span>
-                        <ArrowRight size={24} />
-                      </button>
-                    )}
+                  <div>
+                    <span>Crosswind</span>
+                    <strong>
+                      {Math.abs(segment.cross_mps).toFixed(1)} m/s
+                    </strong>
                   </div>
-                  <div className="pass-verdict">
-                    <span className="verdict-icon">
-                      {x.showAlternative ? (
-                        <Check size={20} />
-                      ) : (
-                        <Wind size={20} />
+                  <div>
+                    <span>Ground speed</span>
+                    <strong>{segment.ground_speed_mps.toFixed(1)} m/s</strong>
+                  </div>
+                </div>
+              </section>
+            )}
+            <section className="comparison-dock" aria-label="Route comparison">
+              <div className="dock-title">
+                <h2>
+                  {r.origin.iata || r.origin.id}
+                  <span>→</span>
+                  {r.destination.iata || r.destination.id}
+                </h2>
+                <span>
+                  {city(r.origin.municipality)} to{" "}
+                  {city(r.destination.municipality)}
+                </span>
+                {x.dirty && <b>Selection changed — calculate to update</b>}
+              </div>
+              <div className="metric-grid">
+                <div className="metric-header">
+                  <span>Path</span>
+                  <span>Cruise time</span>
+                  <span>Distance</span>
+                  <span>Fuel index</span>
+                </div>
+                {(["great_circle", "wind_optimized"] as const).map((route) => (
+                  <div key={route} className={`metric-row ${route}`}>
+                    <span>
+                      <i
+                        className={`route-line ${route === "great_circle" ? "reference" : "alternative"}`}
+                      />
+                      {route === "great_circle"
+                        ? "Shortest distance"
+                        : "Wind-aware"}
+                    </span>
+                    <strong>{time(r.metrics[route].modeled_duration_s)}</strong>
+                    <span>
+                      {Math.round(
+                        r.metrics[route].distance_m / 1000,
+                      ).toLocaleString()}{" "}
+                      km
+                    </span>
+                    <span>
+                      {r.metrics[route].fuel_index.toFixed(
+                        route === "great_circle" ? 0 : 1,
                       )}
                     </span>
-                    <p>
-                      {x.showAlternative ? (
-                        outcome?.meaningful ? (
-                          <>
-                            About{" "}
-                            <strong>
-                              {minutes(outcome.time_difference_s)}{" "}
-                              {outcome.time_difference_s >= 0 ? "less" : "more"}
-                            </strong>{" "}
-                            modeled cruise time (
-                            {Math.abs(outcome.percent_difference).toFixed(1)}%)
-                            compared with the shortest-distance path.
-                          </>
-                        ) : (
-                          <>
-                            No meaningful difference under these assumptions.{" "}
-                            <strong>
-                              Sometimes the shortest path holds up.
-                            </strong>
-                          </>
-                        )
-                      ) : x.calmTime && x.windEnabled ? (
-                        <>
-                          On this path, wind changes modeled time by about{" "}
-                          <strong>
-                            {minutes(x.base.modeled_duration_s - x.calmTime)}
-                          </strong>{" "}
-                          versus still air. Try reversing the journey.
-                        </>
-                      ) : (
-                        <>
-                          A wind pushing along the route changes ground speed.
-                          Crosswinds matter, too.
-                        </>
-                      )}
-                    </p>
                   </div>
-                </div>
-                <div className="pass-stub">
-                  <div className="stub-sun">✦</div>
-                  <span className="mono">
-                    YOUR WINDOW
-                    <br />
-                    INTO THE ATMOSPHERE
-                  </span>
-                  <p>
-                    Real winds.
-                    <br />
-                    Visible assumptions.
-                    <br />
-                    Room for curiosity.
-                  </p>
-                  <button onClick={() => x.setMethodology(true)}>
-                    HOW WE ESTIMATED THIS <ArrowUpRight size={15} />
-                  </button>
-                  <div className="barcode" aria-hidden="true" />
-                  <span className="mono">EXPLORE / NOT NAVIGATE</span>
-                </div>
+                ))}
               </div>
-              {result.warnings
-                .filter((w) => warnings[w])
+              <div className="comparison-result">
+                <strong>
+                  {r.comparison.meaningful
+                    ? `About ${Math.round(Math.abs(r.comparison.time_difference_s) / 60)} min ${r.comparison.time_difference_s >= 0 ? "less" : "more"}`
+                    : "No meaningful difference"}
+                </strong>
+                <span>
+                  {r.comparison.meaningful
+                    ? `${Math.abs(r.comparison.percent_difference).toFixed(1)}% modeled cruise-time difference`
+                    : "Under these model assumptions"}
+                </span>
+                <button
+                  onClick={() => {
+                    setInspection(!inspection);
+                    x.setSegment(0);
+                  }}
+                >
+                  Inspect route
+                </button>
+              </div>
+              <p className="model-note">
+                Hypothetical cruise only · 230 m/s airspeed · operational
+                feasibility not assessed
+                {!x.windEnabled ? " · Zero-wind counterfactual" : ""}
+              </p>
+              {r.warnings
+                .filter((w) => warningText[w])
                 .map((w) => (
-                  <p className="notice notice-warning" key={w}>
-                    <Info size={18} />
-                    {warnings[w]}
+                  <p className="model-warning" key={w}>
+                    {warningText[w]}
                   </p>
                 ))}
-              <div className="result-footnotes">
-                <p>
-                  <Info size={15} />
-                  Cruise model only. Neither line is an observed flight.
-                  Operational feasibility is not assessed.
-                </p>
-                <button onClick={() => x.setMethodology(true)}>
-                  <Info size={16} /> ASSUMPTIONS & SOURCES
-                </button>
-                <button onClick={x.download}>
-                  <ArrowDownToLine size={16} />
-                  TAKE THE SCENARIO WITH YOU
-                </button>
-              </div>
-              <section className="air-inspector">
-                <button
-                  className="inspector-toggle"
-                  aria-expanded={inspection}
-                  aria-controls="air-inspector"
-                  onClick={() => setInspection(!inspection)}
-                >
-                  <span>
-                    <Wind size={21} />
-                    Get to know the air along the path.
-                  </span>
-                  <span className="mono">
-                    {inspection ? "CLOSE" : "TAKE A CLOSER LOOK"}
-                    <ChevronDown size={17} />
-                  </span>
-                </button>
-                {inspection && (
-                  <div id="air-inspector" className="inspector-content">
-                    <label htmlFor="segment">
-                      Explore segment {x.segment + 1} of {x.selected?.length}
-                    </label>
-                    <input
-                      id="segment"
-                      type="range"
-                      min="0"
-                      max={(x.selected?.length || 1) - 1}
-                      value={x.segment}
-                      onChange={(e) => x.setSegment(Number(e.target.value))}
-                    />
-                    {x.selectedSegment && (
-                      <div className="air-readings">
-                        <div>
-                          <small>WIND ALONG THE ROUTE</small>
-                          <strong>
-                            {x.selectedSegment.along_mps.toFixed(1)}{" "}
-                            <span>m/s</span>
-                          </strong>
-                        </div>
-                        <div>
-                          <small>CROSSWIND</small>
-                          <strong>
-                            {Math.abs(x.selectedSegment.cross_mps).toFixed(1)}{" "}
-                            <span>m/s</span>
-                          </strong>
-                        </div>
-                        <div>
-                          <small>MODELED GROUND SPEED</small>
-                          <strong>
-                            {x.selectedSegment.ground_speed_mps.toFixed(1)}{" "}
-                            <span>m/s</span>
-                          </strong>
-                        </div>
-                        <p>
-                          A positive along-route wind pushes in the direction of
-                          travel. The model adjusts the heading to counter
-                          crosswind.
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </section>
-            </>
-          ) : (
-            <p className="empty-state">
-              {x.loading || "Choose a journey to begin exploring."}
-            </p>
-          )}
-        </section>
-        <section className="closing-sky">
-          <CloudBank />
-          <div>
-            <span className="section-kicker">
-              A DIFFERENT WAY TO SEE A FAMILIAR JOURNEY
-            </span>
-            <h2>
-              Keep your head
-              <br />
-              <em>in the clouds.</em>
-            </h2>
-            <p>And your assumptions where everyone can see them.</p>
-            <button
-              className="outline-button"
-              onClick={() => x.setMethodology(true)}
-            >
-              OPEN THE FIELD NOTES <ArrowUpRight size={18} />
-            </button>
-          </div>
-          <PaperPlane />
-        </section>
+            </section>
+          </>
+        )}
       </main>
-      <footer className="sky-footer">
-        <a className="wordmark" href="#top">
-          <Send size={24} />
-          <span>STREAMLINE</span>
-        </a>
-        <p>
-          An aviation what-if, built at HackRPI 2026.
-          <br />
-          Weather: Open-Meteo / NOAA GFS · Airports: OurAirports · Geography:
-          Natural Earth
-        </p>
-        <a
-          href="https://github.com/HassaanVani/Streamline-HackRPI-2026-"
-          target="_blank"
-          rel="noreferrer"
-        >
-          VIEW THE WORKINGS <ArrowUpRight size={16} />
-        </a>
-      </footer>
       <Methodology
         open={x.methodology}
         onClose={() => x.setMethodology(false)}
-        scenario={result}
+        scenario={r}
         onDownload={x.download}
       />
     </div>

@@ -17,7 +17,7 @@ jobs:
       - run: uv sync --frozen --project backend
       - run: cd backend && uv run pytest -q
       - run: cd backend && uv run python ../scripts/export_schema.py
-      - run: cd frontend && npm ci && npm run types && npm run build
+      - run: cd frontend && npm ci && npm run types && npm test && npm run build
       - run: git diff --exit-code -- docs/openapi.json frontend/src/api.generated.ts
       - run: cd frontend && npm audit --omit=dev --audit-level=high
       - run: docker compose config --quiet

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import * as maplibregl from "maplibre-gl";
-import { Minus, Plus, RotateCcw, Wind, Layers3 } from "lucide-react";
+import { Minus, Plus, RotateCcw } from "lucide-react";
 import type { Scenario } from "./types";
+import { routePosition } from "./playback";
 
 function unwrap(coords: number[][]) {
   let last = coords[0][0];
@@ -16,17 +17,21 @@ function unwrap(coords: number[][]) {
 export default function FlightMap({
   scenario,
   showWinds,
-  onToggleWinds,
   showAlternative,
   segment,
   motionPaused,
+  elapsed,
+  inspectKind,
+  onInspect,
 }: {
   scenario: Scenario | null;
   showWinds: boolean;
-  onToggleWinds: () => void;
   showAlternative: boolean;
   segment: number;
   motionPaused: boolean;
+  elapsed: number | null;
+  inspectKind: "great_circle" | "wind_optimized";
+  onInspect: (segment: number, kind: "great_circle" | "wind_optimized") => void;
 }) {
   const container = useRef<HTMLDivElement>(null),
     canvas = useRef<HTMLCanvasElement>(null);
@@ -37,6 +42,7 @@ export default function FlightMap({
     showAlternative,
     segment,
     motionPaused,
+    onInspect,
   });
   current.current = {
     scenario,
@@ -44,6 +50,7 @@ export default function FlightMap({
     showAlternative,
     segment,
     motionPaused,
+    onInspect,
   };
   const [ready, setReady] = useState(false),
     [tileFailure, setTileFailure] = useState(false);
@@ -87,20 +94,20 @@ export default function FlightMap({
             {
               id: "background",
               type: "background",
-              paint: { "background-color": "#d5e7f0" },
+              paint: { "background-color": "#dcecf2" },
             },
             {
               id: "land",
               type: "fill",
               source: "land",
-              paint: { "fill-color": "#edf0df", "fill-opacity": 1 },
+              paint: { "fill-color": "#f0f2eb", "fill-opacity": 1 },
             },
             {
               id: "borders",
               type: "line",
               source: "land",
               paint: {
-                "line-color": "#9cb6b8",
+                "line-color": "#adbfc4",
                 "line-width": 0.7,
                 "line-opacity": 0.5,
               },
@@ -195,14 +202,21 @@ export default function FlightMap({
           6,
           Math.log2(
             Math.min(
-              Math.max(80, width - 130) / (512 * Math.max(1e-6, xmax - xmin)),
-              Math.max(80, height - 200) / (512 * Math.max(1e-6, ymax - ymin)),
+              Math.max(100, width - (width > 850 ? 440 : 100)) /
+                (512 * Math.max(1e-6, xmax - xmin)),
+              Math.max(100, height - (width <= 850 ? 450 : 260)) /
+                (512 * Math.max(1e-6, ymax - ymin)),
             ),
           ),
         ),
       );
       const cy = (ymin + ymax) / 2 - 10 / (512 * 2 ** zoom);
-      m.setPadding({ top: 0, bottom: 0, left: 0, right: 0 });
+      m.setPadding({
+        top: width <= 850 ? 150 : 0,
+        bottom: width <= 850 ? 280 : 0,
+        left: width > 850 ? 320 : 0,
+        right: 0,
+      });
       m.jumpTo({
         center: [
           (xmin + xmax) * 180,
@@ -218,7 +232,62 @@ export default function FlightMap({
       draw.current();
       fit.current();
     });
+    m.on("click", (event) => {
+      if (!m.getLayer("alternative")) return;
+      const hits = m.queryRenderedFeatures(
+        [
+          [event.point.x - 12, event.point.y - 12],
+          [event.point.x + 12, event.point.y + 12],
+        ],
+        { layers: ["alternative", "baseline"] },
+      );
+      const hit = hits[0];
+      const state = current.current;
+      if (!hit || !state.scenario) return;
+      const kind = hit.properties.kind as "great_circle" | "wind_optimized";
+      const segments = state.scenario.metrics[kind].segment_metrics;
+      let closest = 0,
+        best = Infinity;
+      segments.forEach((s, i) => {
+        let lon = s.lon;
+        while (lon - m.getCenter().lng > 180) lon -= 360;
+        while (lon - m.getCenter().lng < -180) lon += 360;
+        const p = m.project([lon, s.lat]);
+        const d = (p.x - event.point.x) ** 2 + (p.y - event.point.y) ** 2;
+        if (d < best) {
+          best = d;
+          closest = i;
+        }
+      });
+      state.onInspect(closest, kind);
+    });
+    m.on("mousemove", (event) => {
+      if (!m.getLayer("alternative")) return;
+      const hits = m.queryRenderedFeatures(event.point, {
+        layers: ["alternative", "baseline"],
+      });
+      m.getCanvas().style.cursor = hits.length ? "crosshair" : "";
+    });
     m.on("style.load", () => {
+      m.addSource("contours", {
+        type: "geojson",
+        data: { type: "FeatureCollection", features: [] },
+      });
+      m.addLayer({
+        id: "contours",
+        type: "line",
+        source: "contours",
+        paint: {
+          "line-color": "#6a9fb6",
+          "line-opacity": 0.38,
+          "line-width": 1,
+        },
+      });
+      m.addSource("flight-positions", {
+        type: "geojson",
+        data: { type: "FeatureCollection", features: [] },
+      });
+
       m.addSource("routes", {
         type: "geojson",
         data: { type: "FeatureCollection", features: [] },
@@ -272,6 +341,23 @@ export default function FlightMap({
           "circle-stroke-width": 3,
         },
       });
+      m.addLayer({
+        id: "flight-positions",
+        type: "circle",
+        source: "flight-positions",
+        paint: {
+          "circle-radius": 7,
+          "circle-color": [
+            "match",
+            ["get", "kind"],
+            "great_circle",
+            "#355f7b",
+            "#b84e2c",
+          ],
+          "circle-stroke-width": 3,
+          "circle-stroke-color": "#fff",
+        },
+      });
       setReady(true);
     });
     return () => {
@@ -312,21 +398,64 @@ export default function FlightMap({
           .addTo(m);
       },
     );
+    const contourFeatures: GeoJSON.Feature[] = [];
+    const samples = scenario.winds.samples;
+    for (const level of [20, 40, 60, 80, 100]) {
+      for (let y = 0; y < 11; y++)
+        for (let x = 0; x < 11; x++) {
+          const corners = [
+            samples[y * 12 + x],
+            samples[y * 12 + x + 1],
+            samples[(y + 1) * 12 + x + 1],
+            samples[(y + 1) * 12 + x],
+          ];
+          if (corners.some((p) => !p)) continue;
+          const crossings: number[][] = [];
+          for (let edge = 0; edge < 4; edge++) {
+            const a = corners[edge],
+              b = corners[(edge + 1) % 4];
+            const sa = Math.hypot(a.u_mps, a.v_mps),
+              sb = Math.hypot(b.u_mps, b.v_mps);
+            if (sa < level === sb < level) continue;
+            const t = (level - sa) / (sb - sa);
+            let dl = b.lon - a.lon;
+            while (dl > 180) dl -= 360;
+            while (dl < -180) dl += 360;
+            crossings.push([a.lon + t * dl, a.lat + t * (b.lat - a.lat)]);
+          }
+          for (let i = 0; i + 1 < crossings.length; i += 2)
+            contourFeatures.push({
+              type: "Feature",
+              properties: { speed: level },
+              geometry: {
+                type: "LineString",
+                coordinates: unwrap([crossings[i], crossings[i + 1]]),
+              },
+            });
+        }
+    }
+    (m.getSource("contours") as maplibregl.GeoJSONSource).setData({
+      type: "FeatureCollection",
+      features: contourFeatures,
+    });
     fit.current();
     draw.current();
   }, [scenario, ready]);
   useEffect(() => {
     const m = map.current;
     if (!m || !ready) return;
+    m.setLayoutProperty(
+      "contours",
+      "visibility",
+      showWinds ? "visible" : "none",
+    );
     for (const id of ["alternative", "alternative-glow"])
       m.setLayoutProperty(
         id,
         "visibility",
         showAlternative ? "visible" : "none",
       );
-    const selected =
-      scenario?.metrics[showAlternative ? "wind_optimized" : "great_circle"]
-        .segment_metrics[segment];
+    const selected = scenario?.metrics[inspectKind].segment_metrics[segment];
     const center = m.getCenter().lng;
     let lon = selected?.lon || 0;
     while (lon - center > 180) lon -= 360;
@@ -344,74 +473,84 @@ export default function FlightMap({
         : [],
     });
     draw.current();
-  }, [scenario, showWinds, showAlternative, segment, ready]);
+  }, [scenario, showWinds, showAlternative, segment, inspectKind, ready]);
   useEffect(() => {
     if (!ready) return;
     let frame = 0;
     const animate = () => {
       draw.current();
-      if (!motionPaused && showWinds && inView)
+      if (!motionPaused && showWinds && inView && scenario?.wind_enabled)
         frame = requestAnimationFrame(animate);
     };
     animate();
     return () => cancelAnimationFrame(frame);
   }, [ready, motionPaused, showWinds, scenario, inView]);
+  useEffect(() => {
+    const m = map.current;
+    if (!m || !ready) return;
+    const features: GeoJSON.Feature[] = [];
+    if (scenario && elapsed !== null)
+      for (const route of scenario.routes.features) {
+        const metrics = scenario.metrics[route.id];
+        const p = routePosition(
+          route.geometry.coordinates,
+          metrics.segment_metrics.map((s) => s.modeled_duration_s),
+          elapsed,
+        );
+        let lon = p.coordinates[0];
+        while (lon - m.getCenter().lng > 180) lon -= 360;
+        while (lon - m.getCenter().lng < -180) lon += 360;
+        features.push({
+          type: "Feature",
+          properties: { kind: route.id },
+          geometry: { type: "Point", coordinates: [lon, p.coordinates[1]] },
+        });
+      }
+    (m.getSource("flight-positions") as maplibregl.GeoJSONSource).setData({
+      type: "FeatureCollection",
+      features,
+    });
+  }, [elapsed, scenario, ready]);
   return (
-    <section className="atmosphere-map" aria-label="Interactive journey map">
+    <section className="flight-map" aria-label="Interactive flight route map">
       <div ref={container} className="map-surface" />
       <canvas ref={canvas} className="wind-surface" aria-hidden="true" />
-      <div className="map-instrument">
-        <Layers3 size={16} />
-        <span>250 hPa</span>
-        <span className="instrument-divider" />
-        <span>
-          {scenario && !scenario.wind_enabled
-            ? "Still-air experiment"
-            : "Cruise-level winds"}
-        </span>
-      </div>
-      <div className="map-toolbox">
+      <div className="map-navigation">
         <button onClick={() => map.current?.zoomIn()} aria-label="Zoom in">
-          <Plus size={20} />
+          <Plus size={19} />
         </button>
         <button onClick={() => map.current?.zoomOut()} aria-label="Zoom out">
-          <Minus size={20} />
+          <Minus size={19} />
         </button>
-        <button onClick={() => fit.current()} aria-label="Fit journey">
-          <RotateCcw size={18} />
+        <button onClick={() => fit.current()} aria-label="Fit route">
+          <RotateCcw size={17} />
         </button>
       </div>
-      <div className="map-key">
+      <div className="chart-key">
         <span>
           <i className="route-line reference" />
           Shortest distance
         </span>
-        {showAlternative && (
-          <span>
-            <i className="route-line alternative" />
-            Wind-based alternative
-          </span>
-        )}
-        <small>Both paths are hypothetical.</small>
+        <span>
+          <i className="route-line alternative" />
+          Wind-aware route
+        </span>
+        <span className="contour-key">
+          <i />
+          Wind speed contours, 20 m/s intervals
+        </span>
       </div>
-      <button
-        className={`wind-visibility ${showWinds ? "is-on" : ""}`}
-        onClick={onToggleWinds}
-        aria-pressed={showWinds}
-      >
-        <Wind size={17} />
-        Show winds<span>{showWinds ? "ON" : "OFF"}</span>
-      </button>
+      <div className="chart-caption">
+        {scenario && !scenario.wind_enabled
+          ? "Zero-wind counterfactual"
+          : `${motionPaused ? "Static" : "Animated"} wind vectors · frozen forecast`}{" "}
+        · click a route to inspect
+      </div>
       {tileFailure && (
         <p className="map-fallback" role="status">
-          The map could not load. You can still explore the complete comparison
-          below.
+          Map unavailable. Route measurements and controls remain available.
         </p>
       )}
-      <div className="map-footnote">
-        {motionPaused ? "Static wind arrows" : "Wind motion is illustrative"} ·
-        frozen forecast field
-      </div>
     </section>
   );
 }

@@ -25,3 +25,13 @@ Five-peer comprehension testing, the in-person judged presentation and Devpost s
 The replacement interface was checked at 1280 × 720 and 390 × 844. The phone layout has no horizontal overflow. Verified the opening-to-explorer link, mobile airport listbox placement and Enter selection, the CDG–FRA saved comparison, still-air recalculation, LHR–JFK reverse comparison (7h 28m baseline / 7h 23m alternative), pause control and static-arrow label, Escape dismissal of field notes, and keyboard segment navigation. The map animation pauses while its surface is offscreen. The scientific evaluator remains unchanged, and all 12 saved fixtures still replay within 1e-6.
 
 Research and the design decisions are recorded in `docs/design-research.md`. New evidence uses the `redesign-` screenshot prefix to distinguish it from the original interface. This is functional and visual QA, not five-peer comprehension testing or an accessibility conformance certification.
+
+## Interactive map workspace
+
+The map-first replacement was verified at 1440 × 900 and 390 × 844, plus the app's narrower desktop pane. At 390 × 844 the document has neither horizontal nor vertical overflow. The promotional page sections and ornamental branding were removed; `docs/ui-audit.md` records the component and copy search.
+
+Verified real playback advancement, shared-clock seeking to 2h 26m, and a pointer click on the wind-aware line that selected segment 27 and displayed its along-route wind, crosswind and modeled ground speed. Four frontend tests cover the playback timing and geometry rules. The existing 25 backend tests also pass.
+
+A Boston–Paris request was submitted through the browser using airport search, not the saved-example selector. It entered the queue, disabled the calculation inputs while working, and returned new geometry marked Computed forecast with approximately 6h 00m baseline time and 5h 57m alternative time (1.1% modeled improvement). Independent rounding of durations and their difference can differ by one minute; the difference is labeled About.
+
+The compact Options panel was used to turn off model winds. JFK–LHR recalculated to 6h 41m on both paths and correctly reported no meaningful difference. This is distinct from hiding the vector and contour layers.

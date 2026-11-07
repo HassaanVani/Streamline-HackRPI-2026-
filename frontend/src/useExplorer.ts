@@ -25,9 +25,8 @@ export default function useExplorer() {
     [origin, setOrigin] = useState<Airport | null>(null),
     [destination, setDestination] = useState<Airport | null>(null);
   const [windEnabled, setWindEnabled] = useState(true),
-    [showWinds, setShowWinds] = useState(true),
-    [showAlternative, setShowAlternative] = useState(false);
-  const [loading, setLoading] = useState("Opening saved journey"),
+    [showWinds, setShowWinds] = useState(true);
+  const [loading, setLoading] = useState("Loading saved journey"),
     [error, setError] = useState(""),
     [methodology, setMethodology] = useState(false),
     [segment, setSegment] = useState(0);
@@ -69,26 +68,20 @@ export default function useExplorer() {
       controller.current?.abort();
     };
   }, []);
-  function apply(result: Scenario, reveal: boolean) {
+  function apply(result: Scenario) {
     setScenario(result);
     setOrigin(result.origin);
     setDestination(result.destination);
     setWindEnabled(result.wind_enabled);
-    setShowAlternative(reveal);
     setSegment(0);
   }
-  async function compare(
-    a = origin,
-    b = destination,
-    wind = windEnabled,
-    reveal = true,
-  ) {
+  async function compare(a = origin, b = destination, wind = windEnabled) {
     if (!a || !b) return;
     controller.current?.abort();
     const abort = new AbortController();
     controller.current = abort;
     setError("");
-    setLoading("Opening saved comparison");
+    setLoading("Loading saved comparison");
     try {
       const saved = examples.find(
         (e) =>
@@ -102,11 +95,10 @@ export default function useExplorer() {
             `/examples/${saved.scenario_id}.json`,
             abort.signal,
           ),
-          reveal,
         );
         return;
       }
-      setLoading("Reading the atmosphere and finding a path");
+      setLoading("Fetching winds and calculating routes");
       const response = await fetch(`${API}/api/v1/scenarios`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -154,7 +146,7 @@ export default function useExplorer() {
         throw new Error(
           result.error?.message || "This journey could not be compared.",
         );
-      apply(result as Scenario, reveal);
+      apply(result as Scenario);
     } catch (e) {
       if ((e as Error).name !== "AbortError")
         setError(
@@ -176,33 +168,6 @@ export default function useExplorer() {
     !!scenario &&
     (origin?.id !== scenario.origin.id ||
       destination?.id !== scenario.destination.id);
-  const base = scenario?.metrics.great_circle,
-    alt = scenario?.metrics.wind_optimized;
-  const selected =
-    scenario?.metrics[showAlternative ? "wind_optimized" : "great_circle"]
-      .segment_metrics;
-  const selectedSegment = selected?.[Math.min(segment, selected.length - 1)];
-  const featured = examples.filter((e) => e.featured && e.wind_enabled);
-  const calm = examples.find(
-    (e) =>
-      e.origin_id === scenario?.origin.id &&
-      e.destination_id === scenario?.destination.id &&
-      !e.wind_enabled,
-  );
-  const [calmTime, setCalmTime] = useState<number | null>(null);
-  useEffect(() => {
-    let live = true;
-    setCalmTime(null);
-    if (calm)
-      getJSON<Scenario>(`/examples/${calm.scenario_id}.json`)
-        .then((r) => {
-          if (live) setCalmTime(r.metrics.great_circle.modeled_duration_s);
-        })
-        .catch(() => {});
-    return () => {
-      live = false;
-    };
-  }, [calm?.scenario_id]);
   function download() {
     if (!scenario) return;
     const blob = new Blob([JSON.stringify(scenario, null, 2)], {
@@ -226,8 +191,6 @@ export default function useExplorer() {
     windEnabled,
     showWinds,
     setShowWinds,
-    showAlternative,
-    setShowAlternative,
     loading,
     error,
     methodology,
@@ -238,12 +201,6 @@ export default function useExplorer() {
     compare,
     cancel,
     dirty,
-    base,
-    alt,
-    selected,
-    selectedSegment,
-    featured,
-    calmTime,
     download,
   };
 }

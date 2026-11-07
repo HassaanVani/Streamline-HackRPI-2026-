@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "types": "openapi-typescript ../docs/openapi.json -o src/api.generated.ts",
-    "check": "tsc -b"
+    "check": "tsc -b",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

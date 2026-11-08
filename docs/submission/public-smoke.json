@@ -1,0 +1,67 @@
+{
+  "checked_at_utc": "2026-11-07T23:06:53.105470+00:00",
+  "public_url": "http://66.135.1.179",
+  "health": {
+    "ready": true,
+    "model_version": "static-cruise-v1",
+    "fixture_count": 12,
+    "forecast_valid_time": "2026-11-07T17:00:00Z",
+    "active": false,
+    "waiting": 0
+  },
+  "checks": [
+    "frontend",
+    "both brand assets",
+    "saved examples",
+    "reverse direction",
+    "still air",
+    "uncached Boston\u2013Paris computation"
+  ],
+  "results": {
+    "east": {
+      "scenario_id": "e317d34c50c6bb3faf06",
+      "comparison": {
+        "time_difference_s": 74.53402892144368,
+        "percent_difference": 0.3392529814972395,
+        "meaningful": true,
+        "stable": true
+      },
+      "valid_time": "2026-11-07T17:00:00Z"
+    },
+    "west": {
+      "scenario_id": "ebcf371d8f6710ed81c7",
+      "comparison": {
+        "time_difference_s": 322.06141291535823,
+        "percent_difference": 1.1974257157551909,
+        "meaningful": true,
+        "stable": true
+      },
+      "valid_time": "2026-11-07T17:00:00Z"
+    },
+    "still_air": {
+      "scenario_id": "6a5bcb79f35b4547ceb6",
+      "comparison": {
+        "time_difference_s": 0.0,
+        "percent_difference": 0.0,
+        "meaningful": false,
+        "stable": true
+      },
+      "valid_time": "2026-11-07T17:00:00Z"
+    },
+    "computed": {
+      "scenario_id": "fef226bbac3724fa4d44",
+      "comparison": {
+        "time_difference_s": 230.44364080611558,
+        "percent_difference": 1.0658038501723892,
+        "meaningful": true,
+        "stable": true
+      },
+      "valid_time": "2026-11-07T17:00:00Z",
+      "payload_hash": "931552f26e81d6589688ec50e41b871f2cd566f1c9083d061209323ddacbc1dc",
+      "warnings": [
+        "FUEL_PROFILE_UNAVAILABLE",
+        "OPERATIONAL_FEASIBILITY_NOT_ASSESSED"
+      ]
+    }
+  }
+}

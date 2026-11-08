@@ -57,3 +57,9 @@ Default wind motion and contours are disabled; drawn arrows are spatially thinne
 The isolated wind arrows have been replaced with cached, curved display streamlines. Screen-projected wind components are interpolated only within triangles of the sampled corridor, with midpoint integration for the curves. No vector extrapolation or additional weather resolution is claimed. Animation is illustrative, and reduced-motion/static controls remain available. Two new tests cover constant-component interpolation, coverage boundaries, flow direction and zero wind; all 11 frontend tests and the production build pass.
 
 A new generated transparent soaring S mark replaces the earlier line glyph in both the header and favicon. The tab title is simply Streamline. The generated source is copied to `frontend/public/streamline-mark.png`, not referenced from a private generation directory.
+
+## ATC identity and public release
+
+The green transparent logo and favicon share the theme asset mapping; the logo brightness filter was removed. Saved preferences and blocked browser storage are covered by the twelfth frontend test. All 12 frontend tests, 25 backend tests, production build and CI container checks passed for application commit `a1449a8e3c1095ff562325983b29543ea1fd9682` (GitHub Actions run 42423271704).
+
+Public Vultr smoke checks passed for health, frontend, both brand assets, saved examples, reversal, still air and one uncached KBOS–LFPG calculation. See `submission/public-smoke.json` for timestamps and hashes. Browser QA verified the live map, green identity, Enter activation of the Atlantic invitation, focus on the challenge heading, and return to exploration. Screenshot: `screenshots/vultr-public-atc.png`. No peer comprehension evidence exists: participants were unavailable. A three-minute video remains unrecorded after native capture failed; the screenshot fallback is available. A physical second-device check and restart rehearsal remain pending.

@@ -4,6 +4,8 @@
 
 This is an educational cruise model. Neither path is an observed flight or an operational flight plan. It does not establish airline inefficiency or avoidable emissions.
 
+**Public demo:** http://66.135.1.179/ — deployed on Vultr. See [deployment evidence](docs/submission/deployment-record.md).
+
 ## Run locally
 
 Requires Node 22.16+ and Python 3.13 with [uv](https://docs.astral.sh/uv/).

@@ -2,6 +2,8 @@
 
 Streamline targets one small Vultr Cloud Compute instance. Docker builds the React frontend and Python backend together; Caddy serves the public endpoint. The backend port is private to the Compose network, and weather computations run as bounded subprocesses. No secrets are needed for the free weather API.
 
+Current verified public demo: http://66.135.1.179/. See [deployment record](submission/deployment-record.md) for the exact deployed commit, evidence and remaining checks.
+
 ## Account and credits
 
 Create an account through [Vultr's MLH program](https://discover.vultr.com/mlh), apply the event promo, and confirm the available credit and expiration in billing before creating a resource. Account creation, payment verification and agreement acceptance belong to the account owner. The promo amount and eligibility must be confirmed in the account; this repository does not assume a credit amount or make paid provisioning automatic.
@@ -54,3 +56,5 @@ Keep the preceding commit hash for rollback: check out that commit and rebuild. 
 ## Handoff and costs
 
 Record the public URL, Vultr region, instance size, deployed commit, HTTPS state and health response in the validation report after deployment. Keep credentials and private SSH material out of Git and the submission. Check credits and expiration during the event. Stopping a cloud server may continue incurring charges; when it is no longer needed, review Vultr's billing and destroy the resource through the account owner after backing up anything needed.
+
+Before closing a setup session, inspect all effective firewall rules: some images already allow SSH globally. Add the specific operator-IP allow rule first, verify it, then remove any unrestricted port 22 rules. Open a fresh SSH connection before ending the original session. If the operator changes networks, update the allow rule through the provider console.

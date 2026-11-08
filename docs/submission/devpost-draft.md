@@ -34,15 +34,15 @@ Test comprehension with people without aviation expertise and address observed f
 
 ## Built with
 
-Python, FastAPI, NumPy, React, TypeScript, Vite, MapLibre GL JS, Open-Meteo/NOAA GFS, OurAirports, Natural Earth, Docker, Caddy.
+Python, FastAPI, NumPy, React, TypeScript, Vite, MapLibre GL JS, Open-Meteo/NOAA GFS, OurAirports, Natural Earth, Docker, Caddy, Vultr.
 
-**Vultr:** add to Built with and select Best Use of Vultr only after the actual public deployment is verified. Deployment status is currently pending.
+**Vultr:** verified public deployment on an Ubuntu 24.04 instance using Docker Compose and Caddy. Public saved, reverse, still-air and uncached weather calculation checks passed.
 
 ## Suggested tracks
 
 - Best In The Clouds: direct fit through atmospheric winds and aviation exploration.
 - Machine Learning / Data Science: consider the published data-analysis/visualization description; the route solver is deterministic and is not machine learning.
-- Best Use of Vultr: only after verified use. Do not enter AI or sustainability claims on the strength of coding assistance or an unvalidated fuel estimate.
+- Best Use of Vultr: public deployment verified. Do not enter AI or sustainability claims on the strength of coding assistance or an unvalidated fuel estimate.
 
 ## Limitations and attribution
 
@@ -51,9 +51,9 @@ One frozen forecast, 250 hPa, illustrative 230m/s true airspeed, cruise-only geo
 ## Links and media to verify before publication
 
 - Repository: https://github.com/HassaanVani/Streamline-HackRPI-2026-
-- Public demo URL: Pending verified deployment
+- Public demo URL: http://66.135.1.179/
 - Video: Pending recording
 - Screenshots: use current images in docs/screenshots; preview each upload.
-- Peer-test evidence: Pending actual participants
+- Peer-test evidence: Not conducted; participants unavailable
 
 Do not publish placeholder values or claim pending work as completed.

@@ -26,6 +26,10 @@ npm run dev
 
 Open http://127.0.0.1:5173. Vite proxies `/api` to port 8000. The 12 saved comparisons (three pairs × two directions × wind on/off) do not need a running API. Worldwide search uses the bundled 48,071-airport snapshot. The bundled Natural Earth map also works without external map tiles or keys; WebGL is required for the map, while the text comparison works without it.
 
+## Deploy the frontend on Netlify
+
+Import this repository with branch `main`. The root `netlify.toml` sets base `frontend`, build `npm run build`, and publish `dist`. API requests proxy to the existing Vultr backend; bundled examples remain static. See [Netlify deployment instructions](docs/netlify.md).
+
 ## Deploy on Vultr
 
 The intended cloud deployment is a Vultr instance running Docker Compose: a non-root FastAPI application serves both the built React app and API; Caddy provides compression and optional automatic HTTPS. See [the complete deployment guide](docs/vultr.md).
